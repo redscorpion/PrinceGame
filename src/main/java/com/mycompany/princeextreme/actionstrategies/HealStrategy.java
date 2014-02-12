@@ -1,5 +1,7 @@
 package com.mycompany.princeextreme.actionstrategies;
 
+import java.util.List;
+
 import com.mycompany.princeextreme.GameStrategy;
 import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 import com.mycompany.princeextreme.TurnStrategy;
@@ -12,17 +14,26 @@ import cz.tieto.princegame.common.gameobject.Prince;
 public class HealStrategy implements ActionStrategy {
 
     public Action getAction(Prince prince, TurnStrategy turnStrategy) {
-        int minHealth = Math.min(prince.getMaxHealth(), Math.max(turnStrategy.getGameStrategy().getNeededHealth(), GameStrategy.MIN_ATTACK_HEALTH));
 
-        if (prince.getHealth() < minHealth) {
-            return new Heal();
+        if (turnStrategy.doNotHeal) {
+            return turnStrategy.invokeNext(prince, turnStrategy);
         }
 
         if (Utils.isSafeToHeal(turnStrategy)) {
             // we can re-heal
-            int healTo = Math.min(GameStrategy.MIN_WALKING_HEALTH, prince.getMaxHealth());
+            int minAttackHeal = Math.min(prince.getMaxHealth(), Math.max(turnStrategy.getGameStrategy().getNeededHealth(), GameStrategy.MIN_ATTACK_HEALTH));
+            int minHealth = Math.min(GameStrategy.MIN_WALKING_HEALTH, prince.getMaxHealth());
+
+            int healTo = Math.min(Math.max(minAttackHeal, minHealth), prince.getMaxHealth());
+
             if (prince.getHealth() < healTo) {
                 return new Heal();
+            }
+        } else {
+            List<TurnStrategy> history = turnStrategy.getGameStrategy().getHistory();
+            if (history.size() > 0) {
+                TurnStrategy lastStrategy = history.get(history.size() - 1);
+                turnStrategy.setStepDirection(lastStrategy.getStepDirection());
             }
         }
 

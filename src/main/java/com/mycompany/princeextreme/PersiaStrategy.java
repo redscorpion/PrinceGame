@@ -9,10 +9,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mycompany.princeextreme.actionstrategies.AttackEnemyStrategy;
 import com.mycompany.princeextreme.actionstrategies.EnterGateStrategy;
 import com.mycompany.princeextreme.actionstrategies.GrabEquipmentStrategy;
 import com.mycompany.princeextreme.actionstrategies.HealStrategy;
-import com.mycompany.princeextreme.actionstrategies.AttackEnemyStrategy;
 import com.mycompany.princeextreme.actionstrategies.PitfallStrategy;
 import com.mycompany.princeextreme.actionstrategies.SimpleMoveStrategy;
 
@@ -53,13 +53,17 @@ public class PersiaStrategy implements GameStrategy {
         System.out.println("STEP " + ++steps);
         System.out.println("----");
         System.out.println("princeHealth:" + prince.getHealth());
+
         TurnStrategy turnStrategy = new TurnStrategy(prince, gameStrategy, strategies);
         Action action = turnStrategy.invokeFirst(prince, turnStrategy);
         turnStrategy.setAction(action);
+
         System.out.println("action:" + action.getClass().getSimpleName());
+
         gameStrategy = gameStrategy.clone();
         gameStrategy.getHistory().add(turnStrategy);
         gameStrategy.updateLevelMap(turnStrategy);
+
         System.out.println("---");
         System.out.println("");
         return action;

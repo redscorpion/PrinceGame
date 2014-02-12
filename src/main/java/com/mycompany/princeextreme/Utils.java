@@ -30,12 +30,12 @@ public class Utils {
         return null;
     }
 
-    public static int getAttack(Obstacle obstacle) {
-        return getAttack(EObstacle.valueOf(obstacle));
+    public static int getAttack(Obstacle obstacle, int distance) {
+        return getAttack(EObstacle.valueOf(obstacle), distance);
     }
 
-    public static int getAttack(EObstacle obstacle) {
-        return obstacle != null ? obstacle.getAttack() : 0;
+    public static int getAttack(EObstacle obstacle, int distance) {
+        return obstacle != null ? obstacle.getAttack(distance) : 0;
     }
 
     public static int getWeaponAttack(Equipment weapon) {
@@ -87,22 +87,24 @@ public class Utils {
     }
 
     public static boolean isEnemy(Obstacle obstacle) {
-        return EObstacle.KNIGHT.equalsTo(obstacle);
+        return EObstacle.KNIGHT.equalsTo(obstacle) || EObstacle.DRAGON.equalsTo(obstacle);
     }
 
     public static boolean isSafeToHeal(TurnStrategy turnStrategy) {
-        return isSafeToHeal(turnStrategy.getPrince().look(-1)) && isSafeToHeal(turnStrategy.getPrince().look(1));
+        return isSafeToHeal(turnStrategy, turnStrategy.getPrince().look(-1)) && isSafeToHeal(turnStrategy, turnStrategy.getPrince().look(1));
     }
 
-    private static boolean isSafeToHeal(Field next) {
+    private static boolean isSafeToHeal(TurnStrategy turnStrategy, Field next) {
+
         if (next != null) {
             Obstacle obstacle = next.getObstacle();
+
             if (!Utils.isEnemy(obstacle) || !Utils.isAlive(obstacle)) {
-                return true;
+                return !turnStrategy.getGameStrategy().getLevelMap().isDragonNear(turnStrategy.getPlayerPos());
             }
             return false;
         }
 
-        return true;
+        return !turnStrategy.getGameStrategy().getLevelMap().isDragonNear(turnStrategy.getPlayerPos());
     }
 }

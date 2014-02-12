@@ -47,7 +47,6 @@ public class LevelMap implements Cloneable {
             prevMapField.next = mapField;
             mapFields.put(pos - 1, prevMapField);
         }
-
     }
 
     public MapField getMapField(int pos) {
@@ -70,9 +69,45 @@ public class LevelMap implements Cloneable {
         }
     }
 
+    public boolean isDragonNear(int pos) {
+        MapField mapField = mapFields.get(pos);
+        boolean dragon = false;
+        if (mapField != null) {
+            dragon |= checkDragon(mapField);
+        }
+
+        mapField = mapFields.get(pos - 1);
+        if (mapField != null) {
+            dragon |= checkDragon(mapField);
+        }
+        mapField = mapFields.get(pos - 2);
+        if (mapField != null) {
+            dragon |= checkDragon(mapField);
+        }
+        mapField = mapFields.get(pos + 1);
+        if (mapField != null) {
+            dragon |= checkDragon(mapField);
+        }
+        mapField = mapFields.get(pos + 2);
+        if (mapField != null) {
+            dragon |= checkDragon(mapField);
+        }
+
+        return dragon;
+    }
+
+    /**
+     * @param mapField
+     * @return
+     */
+    private boolean checkDragon(MapField mapField) {
+        return mapField != null && EObstacle.DRAGON.equalsTo(mapField.gameField.getObstacle()) && Utils.isAlive(mapField.gameField.getObstacle());
+    }
+
     public static class MapField {
         public MapField prev;
         public MapField next;
         public Field gameField;
+
     }
 }
