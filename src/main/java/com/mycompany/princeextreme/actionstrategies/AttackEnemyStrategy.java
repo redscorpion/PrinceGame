@@ -1,6 +1,5 @@
 package com.mycompany.princeextreme.actionstrategies;
 
-import com.mycompany.princeextreme.EDirection;
 import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 import com.mycompany.princeextreme.TurnStrategy;
 import com.mycompany.princeextreme.Utils;
@@ -14,6 +13,10 @@ import cz.tieto.princegame.common.gameobject.Prince;
 public class AttackEnemyStrategy implements ActionStrategy {
 
     public Action getAction(Prince prince, TurnStrategy turnStrategy) {
+        if (turnStrategy.retreat) {
+            return turnStrategy.invokeNext(prince, turnStrategy);
+        }
+
         Field next = turnStrategy.getNextStepField(prince);
         if (next != null) {
             Obstacle obstacle = next.getObstacle();
@@ -24,7 +27,7 @@ public class AttackEnemyStrategy implements ActionStrategy {
                 System.out.println("-- weapon: " + (weapon != null ? weapon.getName() : "null"));
                 if (weapon == null) {
                     System.out.println("-- switch direction and find weapon");
-                    turnStrategy.setStepDirection(turnStrategy.getStepDirection() == EDirection.FWD ? EDirection.BKW : EDirection.FWD);
+                    turnStrategy.setStepDirection(turnStrategy.getStepDirection().opposite());
                     turnStrategy.getGameStrategy().setDirection(turnStrategy.getStepDirection());
                     return turnStrategy.invokeNext(prince, turnStrategy);
                 }

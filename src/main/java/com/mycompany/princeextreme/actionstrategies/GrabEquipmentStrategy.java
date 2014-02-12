@@ -11,6 +11,10 @@ import cz.tieto.princegame.common.gameobject.Prince;
 public class GrabEquipmentStrategy implements ActionStrategy {
 
     public Action getAction(Prince prince, TurnStrategy turnStrategy) {
+        if (turnStrategy.retreat) {
+            return turnStrategy.invokeNext(prince, turnStrategy);
+        }
+
         Equipment equipment = prince.look(0).getEquipment();
         if (equipment != null && Utils.getEquipment(prince, equipment.getName()) == null) {
             return turnStrategy.grab();

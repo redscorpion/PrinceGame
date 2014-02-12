@@ -1,9 +1,4 @@
-/***************************************************************************************************
- * Copyright 2013 TeliaSonera. All rights reserved.
- **************************************************************************************************/
 package com.mycompany.princeextreme.actionstrategies;
-
-import static com.mycompany.princeextreme.EDirection.*;
 
 import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 import com.mycompany.princeextreme.TurnStrategy;
@@ -19,7 +14,7 @@ public class SimpleMoveStrategy implements ActionStrategy {
         Field next = turnStrategy.getNextStepField(prince);
 
         if (next == null) {
-            turnStrategy.setStepDirection(turnStrategy.getStepDirection() == FWD ? BKW : FWD);
+            turnStrategy.setStepDirection(turnStrategy.getStepDirection().opposite());
             turnStrategy.getGameStrategy().setDirection(turnStrategy.getStepDirection());
             return turnStrategy.invokeFirst(prince, turnStrategy);
         }

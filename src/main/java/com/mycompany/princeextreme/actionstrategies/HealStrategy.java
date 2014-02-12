@@ -16,37 +16,10 @@ public class HealStrategy implements ActionStrategy {
 
     public Action getAction(Prince prince, TurnStrategy turnStrategy) {
 
-        // if (turnStrategy.retreat) {
-        // return turnStrategy.invokeNext(prince, turnStrategy);
-        // }
-
         if (Utils.isSafeToHealHere(turnStrategy)) {
             System.out.println("-- it should be safe to heal here");
             if (prince.getHealth() < prince.getMaxHealth()) {
-                System.out.println("-- heal");
-                List<TurnStrategy> history = turnStrategy.getGameStrategy().getHistory();
-                if (history.size() > 0) {
-                    TurnStrategy lastStrategy = history.get(history.size() - 1);
-                    if (lastStrategy.getAction() instanceof Heal) {
-                        if (prince.getHealth() <= lastStrategy.getPrince().getHealth()) {
-                            System.out.println(" -- but something is damaging me");
-                            if (lastStrategy.retreat == true) {
-                                System.out.println(" -- continue retreat in previous direction");
-                                turnStrategy.retreat = true;
-                                turnStrategy.setStepDirection(lastStrategy.getStepDirection());
-                            } else {
-                                if (shouldRetreat(prince)) {
-                                    System.out.println("-- low health");
-                                    beginRetreat(turnStrategy, lastStrategy.getStepDirection().opposite());
-                                }
-                            }
-
-                            return turnStrategy.invokeNext(prince, turnStrategy);
-                        }
-                    }
-                }
-
-                return turnStrategy.heal();
+                return doHeal(prince, turnStrategy);
             }
 
         } else {
@@ -61,9 +34,33 @@ public class HealStrategy implements ActionStrategy {
         return turnStrategy.invokeNext(prince, turnStrategy);
     }
 
-    /**
-     * 
-     */
+    private Action doHeal(Prince prince, TurnStrategy turnStrategy) {
+        System.out.println("-- heal");
+        List<TurnStrategy> history = turnStrategy.getGameStrategy().getHistory();
+        if (history.size() > 0) {
+            TurnStrategy lastStrategy = history.get(history.size() - 1);
+            if (lastStrategy.getAction() instanceof Heal) {
+                if (prince.getHealth() <= lastStrategy.getPrince().getHealth()) {
+                    System.out.println(" -- but something is damaging me");
+                    if (lastStrategy.retreat == true) {
+                        System.out.println(" -- continue retreat in previous direction");
+                        turnStrategy.retreat = true;
+                        turnStrategy.setStepDirection(lastStrategy.getStepDirection());
+                    } else {
+                        if (shouldRetreat(prince)) {
+                            System.out.println("-- low health");
+                            beginRetreat(turnStrategy, lastStrategy.getStepDirection().opposite());
+                        }
+                    }
+
+                    return turnStrategy.invokeNext(prince, turnStrategy);
+                }
+            }
+        }
+
+        return turnStrategy.heal();
+    }
+
     private void beginRetreat(TurnStrategy turnStrategy, EDirection retreatDirection) {
         System.out.println(" -- retreat, direction: " + retreatDirection);
         turnStrategy.retreat = true;

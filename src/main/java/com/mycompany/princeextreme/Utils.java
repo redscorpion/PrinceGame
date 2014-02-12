@@ -9,11 +9,11 @@ import cz.tieto.princegame.common.gameobject.Prince;
 public class Utils {
 
     public static boolean isAlive(Obstacle obstacle) {
-        return obstacle != null && "false".equals(obstacle.getProperty("dead"));
+        return obstacle != null && !Boolean.parseBoolean(obstacle.getProperty("dead"));
     }
 
     public static int getHealth(Obstacle obstacle) {
-        return obstacle != null ? new Integer(obstacle.getProperty("health")) : 0;
+        return obstacle != null ? Integer.parseInt(obstacle.getProperty("health")) : 0;
     }
 
     public static Equipment getEquipment(Prince prince, EEquipment equipment) {

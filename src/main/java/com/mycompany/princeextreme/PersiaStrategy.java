@@ -1,13 +1,7 @@
-/** *************************************************************************************************
- * Copyright 2013 TeliaSonera. All rights reserved.
- ************************************************************************************************* */
 package com.mycompany.princeextreme;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.mycompany.princeextreme.actionstrategies.AttackEnemyStrategy;
 import com.mycompany.princeextreme.actionstrategies.ChopperStrategy;
@@ -21,13 +15,7 @@ import cz.tieto.princegame.common.GameStrategy;
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.gameobject.Prince;
 
-/**
- * 
- * @author nzh4954
- */
 public class PersiaStrategy implements GameStrategy {
-
-    private static final Logger Log = LoggerFactory.getLogger(PersiaStrategy.class);
 
     public interface ActionStrategy {
 
