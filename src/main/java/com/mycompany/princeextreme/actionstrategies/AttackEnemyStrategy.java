@@ -20,7 +20,7 @@ public class AttackEnemyStrategy implements ActionStrategy {
             Obstacle obstacle = next.getObstacle();
 
             if (Utils.isEnemy(obstacle) && Utils.isAlive(obstacle)) {
-                System.out.println("-- enemy: " + obstacle.getName());
+                System.out.println("-- enemy: " + obstacle.getName() + " health:" + Utils.getHealth(obstacle));
                 Equipment weapon = Utils.getWeapon(prince, obstacle);
                 System.out.println("-- weapon: " + (weapon != null ? weapon.getName() : "null"));
                 if (weapon == null) {

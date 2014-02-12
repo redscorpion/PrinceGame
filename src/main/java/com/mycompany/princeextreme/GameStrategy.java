@@ -10,9 +10,9 @@ import java.util.List;
 
 public class GameStrategy implements Cloneable {
 
-    public static final int MIN_ATTACK_HEALTH = 2;
+    public static final int MIN_ATTACK_HEALTH = 3;
 
-    public static final int MIN_WALKING_HEALTH = 3;
+    public static final int MIN_WALKING_HEALTH = 4;
 
     private EDirection direction = FWD;
 
