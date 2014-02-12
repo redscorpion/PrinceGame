@@ -8,7 +8,6 @@ import com.mycompany.princeextreme.TurnStrategy;
 import com.mycompany.princeextreme.Utils;
 
 import cz.tieto.princegame.common.action.Action;
-import cz.tieto.princegame.common.action.Heal;
 import cz.tieto.princegame.common.gameobject.Prince;
 
 public class HealStrategy implements ActionStrategy {
@@ -27,7 +26,7 @@ public class HealStrategy implements ActionStrategy {
             int healTo = Math.min(Math.max(minAttackHeal, minHealth), prince.getMaxHealth());
 
             if (prince.getHealth() < healTo) {
-                return new Heal();
+                return turnStrategy.heal();
             }
         } else {
             List<TurnStrategy> history = turnStrategy.getGameStrategy().getHistory();

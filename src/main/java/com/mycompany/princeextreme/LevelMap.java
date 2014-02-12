@@ -70,12 +70,14 @@ public class LevelMap implements Cloneable {
     }
 
     public boolean isDragonNear(int pos) {
-        MapField mapField = mapFields.get(pos);
         boolean dragon = false;
+
+        MapField mapField;
+
+        mapField = mapFields.get(pos);
         if (mapField != null) {
             dragon |= checkDragon(mapField);
         }
-
         mapField = mapFields.get(pos - 1);
         if (mapField != null) {
             dragon |= checkDragon(mapField);
