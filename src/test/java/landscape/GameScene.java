@@ -6,7 +6,10 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
+
 import cz.tieto.princegame.common.action.Action;
+import cz.tieto.princegame.common.action.Grab;
 import cz.tieto.princegame.common.action.JumpBackward;
 import cz.tieto.princegame.common.action.JumpForward;
 import cz.tieto.princegame.common.action.MoveBackward;
@@ -25,9 +28,9 @@ public class GameScene {
 	public static String PITFALL = "PITFALL";
 
 	public static List<Field> fields = null;
-	
+
 	public static int currentPosition;
-	
+
 	static boolean hasSword = false;
 
 	public static List<Field> generateFields(String... field_idents) {
@@ -95,26 +98,87 @@ public class GameScene {
 		return prince;
 
 	}
-	
-	public static int updateGameScene(Action action){
-		
+
+	public static int updateGameScene(Action action) {
+		if (action instanceof Grab) {
+			System.out.println("Grab");
+			Equipment equipment = fields.get(currentPosition).getEquipment();
+			if (equipment != null && equipment.getName().equals("sword")) {
+				hasSword = true;
+			}
+		}
+
+		int candidatePosition = currentPosition;
+
 		if (action instanceof MoveForward) {
-			currentPosition++;
+			candidatePosition++;
 		} else if (action instanceof JumpForward) {
-			currentPosition += 2;
+			candidatePosition += 2;
 		}
 		if (action instanceof MoveBackward) {
-			currentPosition--;
+			candidatePosition--;
 		} else if (action instanceof JumpBackward) {
-			currentPosition -= 2;
+			candidatePosition -= 2;
 		}
-		
-		if (currentPosition < 0) {
-			currentPosition = 0;
+
+		if (candidatePosition < 0) {
+			candidatePosition = 0;
 		}
-		if (currentPosition > fields.size() - 1) {
-			currentPosition = fields.size() - 1;
+		if (candidatePosition > fields.size() - 1) {
+			candidatePosition = fields.size() - 1;
 		}
-		return currentPosition;
+
+		if (currentPosition != candidatePosition) {
+			int jump = candidatePosition - currentPosition;
+			if (Math.abs(jump) == 2) {
+				if (jump > 0) {
+					testOverPosition(currentPosition + 1);
+				} else {
+					testOverPosition(currentPosition - 1);
+				}
+			}
+			testTargetPosition(candidatePosition);
+		}
+
+		return candidatePosition;
+	}
+
+	private static void testTargetPosition(int candidatePosition) {
+		Field candField = fields.get(candidatePosition);
+
+		if (candField.getObstacle() != null) {
+			Obstacle o = candField.getObstacle();		
+			if (o.getName().equals("pitfall")) {
+				Assert.fail("Dead - pitfall");
+			}
+
+			if (o.getName().equals("knight")
+					&& (o.getProperty("dead").equals("false"))) {
+				Assert.fail("Dead - knight");
+			}
+
+			if (o.getName().equals("dragon")
+					&& (o.getProperty("dead").equals("false"))) {
+				Assert.fail("Dead - dragon");
+			}
+		}
+	}
+	
+	private static void testOverPosition(int candidatePosition) {
+		Field candField = fields.get(candidatePosition);
+
+		if (candField.getObstacle() != null) {
+			Obstacle o = candField.getObstacle();		
+			
+			if (o.getName().equals("knight")
+					&& (o.getProperty("dead").equals("false"))) {
+				Assert.fail("Dead - knight");
+			}
+
+			if (o.getName().equals("dragon")
+					&& (o.getProperty("dead").equals("false"))) {
+				Assert.fail("Dead - dragon");
+			}
+		}
 	}
 }

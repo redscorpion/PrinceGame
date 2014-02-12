@@ -4,13 +4,13 @@ import java.util.List;
 
 import landscape.GameScene;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.mycompany.princeextreme.PersiaStrategy;
 
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.action.EnterGate;
-import cz.tieto.princegame.common.action.Grab;
 import cz.tieto.princegame.common.gameobject.Field;
 import cz.tieto.princegame.common.gameobject.Prince;
 
@@ -21,8 +21,8 @@ public class MiAlStrategyTest {
 	public void testRunner(List<Field> fields, int position) {
 
 		PersiaStrategy ps = new PersiaStrategy();
-		
-		for (int i = 0; i < CYCLE; i++) {
+		int i = 0;
+		for (; i < CYCLE; i++) {
 			Prince prince = GameScene.getPrinceOnPosition(position);
 
 			Action action = ps.step(prince);
@@ -33,17 +33,11 @@ public class MiAlStrategyTest {
 				System.out.println("VICTORY");
 				break;
 			}
-			
-			if (action instanceof Grab) {
-				System.out.println("Grab");
-				hasSword = true;
-			}
-				
 		
 			// correct position
 			position = GameScene.updateGameScene(action);
 		}
-		
+		if(i >= CYCLE) Assert.fail("Infinite Loop");
 		System.out.println("game over");
 	}
 
