@@ -60,6 +60,11 @@ public class PersiaStrategyTest {
     public void setUp() {
         testField = new TestField();
 
+        createPrince(testField);
+
+    }
+
+    private void createPrince(final TestField testField) {
         prince = Mockito.mock(Prince.class);
 
         when(prince.look(0)).thenAnswer(new Answer<Field>() {
@@ -97,7 +102,6 @@ public class PersiaStrategyTest {
                 return testField.getInventory();
             }
         });
-
     }
 
     @After
@@ -112,7 +116,7 @@ public class PersiaStrategyTest {
         testField.setGatePos(7);
         testField.setLength(8);
         // testField.addObstacle(4, new Chopper());
-        testField.addObstacle(6, new Dragon(5));
+        testField.addObstacle(6, new Dragon(20));
         testField.addEquipment(1, new Sword());
 
         PersiaStrategy strategy = new PersiaStrategy();
@@ -120,6 +124,7 @@ public class PersiaStrategyTest {
         Action step;
 
         do {
+            createPrince(testField);
             step = strategy.step(prince);
             updateGameState(step);
         } while (!(step instanceof EnterGate) && testField.getPrinceHealth() > 0);
@@ -129,6 +134,7 @@ public class PersiaStrategyTest {
      * @param step
      */
     private void updateGameState(Action step) {
+        testField = testField.clone();
         if (step instanceof MoveForward) {
             testField.setPos(testField.getPos() + 1);
         } else if (step instanceof MoveBackward) {
@@ -144,7 +150,6 @@ public class PersiaStrategyTest {
         } else if (step instanceof Heal) {
             testField.setPrinceHealth(testField.getPrinceHealth() + 1);
         }
-        testField = testField.clone();
         testField.ememyTurn();
     }
 
