@@ -26,12 +26,15 @@ public class GameScene {
 	public static String GATE = "GATE";
 	public static String KNIGHT = "KNIGHT";
 	public static String PITFALL = "PITFALL";
+	public static String DRAGON = "DRAGON";
 
 	public static List<Field> fields = null;
 
 	public static int currentPosition;
 
 	static boolean hasSword = false;
+	
+	static Prince prince = null;
 
 	public static List<Field> generateFields(String... field_idents) {
 		fields = new ArrayList<Field>(field_idents.length);
@@ -42,7 +45,7 @@ public class GameScene {
 			if (field_ident.equals(SWORD)) {
 				Equipment equipment = mock(Equipment.class);
 				when(equipment.getName()).thenReturn("sword");
-				when(field.getEquipment()).thenReturn(equipment);
+				when(field.getEquipment()).thenReturn(equipment);			
 			}
 
 			if (field_ident.equals(PITFALL)) {
@@ -52,17 +55,13 @@ public class GameScene {
 			}
 
 			if (field_ident.equals(KNIGHT)) {
-				Obstacle obstacle = mock(Obstacle.class);
-				when(obstacle.getName()).thenReturn("knight");
+				Obstacle obstacle = new Knight(3);
 				when(field.getObstacle()).thenReturn(obstacle);
-
-				when(obstacle.getProperty("dead")).thenReturn("false");
-				when(obstacle.getProperty("health")).thenReturn("4");
-				when(obstacle.getProperty("dead")).thenReturn("false");
-				when(obstacle.getProperty("health")).thenReturn("2");
-				when(obstacle.getProperty("dead")).thenReturn("true");
-				when(obstacle.getProperty("health")).thenReturn("0");
-
+			}
+			
+			if (field_ident.equals(DRAGON)) {
+				Obstacle obstacle = new Dragon(3);
+				when(field.getObstacle()).thenReturn(obstacle);
 			}
 
 			if (field_ident.equals(GATE)) {
@@ -77,7 +76,7 @@ public class GameScene {
 	public static Prince getPrinceOnPosition(int position) {
 		currentPosition = position;
 
-		Prince prince = mock(Prince.class);
+		if(prince == null) prince =  mock(Prince.class);
 
 		Field currentField = fields.get(position);
 		when(prince.look(0)).thenReturn(currentField);
@@ -105,7 +104,11 @@ public class GameScene {
 			Equipment equipment = fields.get(currentPosition).getEquipment();
 			if (equipment != null && equipment.getName().equals("sword")) {
 				hasSword = true;
+				List<Equipment> value = new ArrayList<Equipment>();
+				value.add(new Sword());
+				when(prince.getInventory()).thenReturn(value);
 			}
+			when(fields.get(currentPosition).getEquipment()).thenReturn(null);		
 		}
 
 		int candidatePosition = currentPosition;
@@ -180,5 +183,22 @@ public class GameScene {
 				Assert.fail("Dead - dragon");
 			}
 		}
+	}	
+}
+
+class Sword implements Equipment {
+	public String getProperty(String arg0) {
+		if ("name".equals(arg0)) {
+			return getName();
+		}
+		return null;
+	}
+	
+	public String getName() {
+		return "sword";
+	}
+	
+	public int getId() {
+		return System.identityHashCode(this);
 	}
 }

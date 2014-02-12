@@ -27,7 +27,7 @@ public class MiAlStrategyTest {
 
 			Action action = ps.step(prince);
 
-			System.out.println(action.getClass().getSimpleName() + " position " + position);
+			System.out.println(">> ACTION " + action.getClass().getSimpleName() + " position " + position);
 			
 			if (action instanceof EnterGate) {
 				System.out.println("VICTORY");
