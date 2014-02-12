@@ -28,8 +28,7 @@ public class TurnStrategy {
     private Iterator<ActionStrategy> currentStrategy;
     private Action action;
 
-    private int playerPos;
-    public boolean doNotHeal;
+    public boolean retreat;
 
     public TurnStrategy(Prince prince, GameStrategy gameStrategy, List<ActionStrategy> strategies) {
         this.prince = prince;
@@ -93,27 +92,27 @@ public class TurnStrategy {
     public Action move() {
         switch (stepDirection) {
         case FWD:
-            playerPos += 1;
+            getGameStrategy().setPlayerPos(getGameStrategy().getPlayerPos() + 1);
             return new MoveForward();
         case BKW:
-            playerPos -= 1;
+            getGameStrategy().setPlayerPos(getGameStrategy().getPlayerPos() - 1);
             return new MoveBackward();
         default:
             throw new IllegalStateException();
         }
     }
 
-    public Action jump() {
+    public Action jump(boolean shouldBeSafe) {
         switch (stepDirection) {
         case FWD:
-            playerPos += 2;
-            if (getGameStrategy().getLevelMap().getMapField(playerPos) == null) {
+            getGameStrategy().setPlayerPos(getGameStrategy().getPlayerPos() + 2);
+            if (!shouldBeSafe && getGameStrategy().getLevelMap().getMapField(getGameStrategy().getPlayerPos()) == null) {
                 getGameStrategy().resetLevelMap();
             }
             return new JumpForward();
         case BKW:
-            playerPos -= 2;
-            if (getGameStrategy().getLevelMap().getMapField(playerPos) == null) {
+            getGameStrategy().setPlayerPos(getGameStrategy().getPlayerPos() - 2);
+            if (!shouldBeSafe && getGameStrategy().getLevelMap().getMapField(getGameStrategy().getPlayerPos()) == null) {
                 getGameStrategy().resetLevelMap();
             }
             return new JumpBackward();
@@ -142,7 +141,4 @@ public class TurnStrategy {
         return action;
     }
 
-    public int getPlayerPos() {
-        return playerPos;
-    }
 }

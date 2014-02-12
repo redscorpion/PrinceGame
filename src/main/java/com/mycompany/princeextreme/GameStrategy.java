@@ -8,19 +8,23 @@ import static com.mycompany.princeextreme.EDirection.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
+
+import cz.tieto.princegame.common.gameobject.Prince;
+
 public class GameStrategy implements Cloneable {
 
-    public static final int MIN_ATTACK_HEALTH = 3;
-
-    public static final int MIN_WALKING_HEALTH = 4;
+    public static final int MIN_HEALTH = 5;
 
     private EDirection direction = FWD;
-
-    private int neededHealth = MIN_WALKING_HEALTH;
 
     private LevelMap levelMap = new LevelMap();
 
     private List<TurnStrategy> history = new ArrayList<TurnStrategy>();
+
+    private int playerPos;
+
+    private int stepNumber;
 
     public EDirection getDirection() {
         return this.direction;
@@ -28,14 +32,6 @@ public class GameStrategy implements Cloneable {
 
     public void setDirection(EDirection direction) {
         this.direction = direction;
-    }
-
-    public int getNeededHealth() {
-        return neededHealth;
-    }
-
-    public void setNeededHealth(int neededHealth) {
-        this.neededHealth = neededHealth;
     }
 
     public List<TurnStrategy> getHistory() {
@@ -46,12 +42,31 @@ public class GameStrategy implements Cloneable {
         levelMap.reset();
     }
 
-    public void updateLevelMap(TurnStrategy turnStrategy) {
-        levelMap.updateLevelMap(turnStrategy.getPlayerPos(), turnStrategy.getPrince());
-    }
-
     public LevelMap getLevelMap() {
         return levelMap;
+    }
+
+    public int getPlayerPos() {
+        return playerPos;
+    }
+
+    public void setPlayerPos(int playerPos) {
+        this.playerPos = playerPos;
+    }
+
+    public int getStepNumber() {
+        return stepNumber;
+    }
+
+    public TurnStrategy newStep(Prince prince, int stepNumber, List<ActionStrategy> strategies) {
+        TurnStrategy turnStrategy = new TurnStrategy(prince, this, strategies);
+        this.stepNumber = stepNumber;
+        updateLevelMap(prince);
+        return turnStrategy;
+    }
+
+    private void updateLevelMap(Prince prince) {
+        levelMap.updateLevelMap(getPlayerPos(), prince);
     }
 
     /**

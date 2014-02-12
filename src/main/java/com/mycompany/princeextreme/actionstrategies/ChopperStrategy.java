@@ -20,7 +20,7 @@ public class ChopperStrategy implements ActionStrategy {
             boolean closing = "true".equals(next.getObstacle().getProperty("closing"));
             boolean opening = "true".equals(next.getObstacle().getProperty("opening"));
             if (closing == false && opening == true) {
-                return turnStrategy.jump();
+                return turnStrategy.jump(true);
             } else {
                 return turnStrategy.heal();
             }

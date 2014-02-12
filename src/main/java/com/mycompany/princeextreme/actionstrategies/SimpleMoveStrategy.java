@@ -7,6 +7,7 @@ import static com.mycompany.princeextreme.EDirection.*;
 
 import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 import com.mycompany.princeextreme.TurnStrategy;
+import com.mycompany.princeextreme.Utils;
 
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.gameobject.Field;
@@ -23,10 +24,10 @@ public class SimpleMoveStrategy implements ActionStrategy {
             return turnStrategy.invokeFirst(prince, turnStrategy);
         }
 
-        // if (Utils.isSafeToMoveFast(turnStrategy, 2)) {
-        // return turnStrategy.jump();
-        // } else {
+        if (Utils.isSafeToMoveFast(turnStrategy, 2)) {
+            return turnStrategy.jump(false);
+        } else {
             return turnStrategy.move();
-        // }
+        }
     }
 }

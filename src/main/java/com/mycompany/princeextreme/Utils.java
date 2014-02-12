@@ -3,14 +3,13 @@ package com.mycompany.princeextreme;
 import com.mycompany.princeextreme.LevelMap.MapField;
 
 import cz.tieto.princegame.common.gameobject.Equipment;
-import cz.tieto.princegame.common.gameobject.Field;
 import cz.tieto.princegame.common.gameobject.Obstacle;
 import cz.tieto.princegame.common.gameobject.Prince;
 
 public class Utils {
 
     public static boolean isAlive(Obstacle obstacle) {
-        return obstacle != null && obstacle.getProperty("dead").equals("false");
+        return obstacle != null && "false".equals(obstacle.getProperty("dead"));
     }
 
     public static int getHealth(Obstacle obstacle) {
@@ -51,32 +50,43 @@ public class Utils {
     }
 
     public static boolean isSafeToMoveFast(TurnStrategy turnStrategy, int jumpLength) {
-        int playerPos = turnStrategy.getPlayerPos();
+        int playerPos = turnStrategy.getGameStrategy().getPlayerPos();
         LevelMap levelMap = turnStrategy.getGameStrategy().getLevelMap();
 
         switch (turnStrategy.getStepDirection()) {
         case BKW:
-            for (int i = 1; i < jumpLength; i++) {
+            for (int i = 1; i <= jumpLength; i++) {
                 MapField mapField = levelMap.getMapField(playerPos - i);
                 if (mapField == null) {
                     return false;
                 }
-                if (mapField.gameField.getObstacle() != null || mapField.gameField.getEquipment() != null) {
+                if (mapField.gameField.getEquipment() != null) {
                     return false;
+                }
+                if (mapField.gameField.getObstacle() != null) {
+                    Obstacle obstacle = mapField.gameField.getObstacle();
+                    if (!isEnemy(obstacle) || isAlive(obstacle)) {
+                        return false;
+                    }
                 }
             }
             return true;
 
         case FWD:
-            for (int i = 1; i < jumpLength; i++) {
+            for (int i = 1; i <= jumpLength; i++) {
                 MapField mapField = levelMap.getMapField(playerPos + i);
                 if (mapField == null) {
                     return false;
                 }
-                if (mapField.gameField.getObstacle() != null || mapField.gameField.getEquipment() != null) {
+                if (mapField.gameField.getEquipment() != null) {
                     return false;
                 }
-
+                if (mapField.gameField.getObstacle() != null) {
+                    Obstacle obstacle = mapField.gameField.getObstacle();
+                    if (!isEnemy(obstacle) || isAlive(obstacle)) {
+                        return false;
+                    }
+                }
             }
             return true;
 
@@ -87,24 +97,42 @@ public class Utils {
     }
 
     public static boolean isEnemy(Obstacle obstacle) {
-        return EObstacle.KNIGHT.equalsTo(obstacle) || EObstacle.DRAGON.equalsTo(obstacle);
+        return isEnemy(EObstacle.valueOf(obstacle));
     }
 
-    public static boolean isSafeToHeal(TurnStrategy turnStrategy) {
-        return isSafeToHeal(turnStrategy, turnStrategy.getPrince().look(-1)) && isSafeToHeal(turnStrategy, turnStrategy.getPrince().look(1));
+    public static boolean isEnemy(EObstacle obstacle) {
+        return EObstacle.KNIGHT == obstacle || EObstacle.DRAGON == obstacle;
     }
 
-    private static boolean isSafeToHeal(TurnStrategy turnStrategy, Field next) {
+    public static boolean isSafeToHealHere(TurnStrategy turnStrategy) {
+        GameStrategy gameStrategy = turnStrategy.getGameStrategy();
 
-        if (next != null) {
-            Obstacle obstacle = next.getObstacle();
-
-            if (!Utils.isEnemy(obstacle) || !Utils.isAlive(obstacle)) {
-                return !turnStrategy.getGameStrategy().getLevelMap().isDragonNear(turnStrategy.getPlayerPos());
+        EObstacle[] values = EObstacle.values();
+        for (EObstacle eObstacle : values) {
+            if (isEnemy(eObstacle)) {
+                if (gameStrategy.getLevelMap().isEnemyNear(eObstacle, gameStrategy.getPlayerPos(), eObstacle.getAttackRange())) {
+                    return false;
+                }
             }
-            return false;
         }
 
-        return !turnStrategy.getGameStrategy().getLevelMap().isDragonNear(turnStrategy.getPlayerPos());
+        return true;
     }
+
+    public static EDirection geEnemyDirection(TurnStrategy turnStrategy) {
+        GameStrategy gameStrategy = turnStrategy.getGameStrategy();
+
+        EObstacle[] values = EObstacle.values();
+        for (EObstacle eObstacle : values) {
+            if (isEnemy(eObstacle)) {
+                EDirection enemyDirection = gameStrategy.getLevelMap().getEnemyDirection(eObstacle, gameStrategy.getPlayerPos(), eObstacle.getAttackRange());
+                if (enemyDirection != null) {
+                    return enemyDirection;
+                }
+            }
+        }
+
+        return null;
+    }
+
 }

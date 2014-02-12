@@ -17,7 +17,7 @@ public class PitfallStrategy implements ActionStrategy {
         Field next = turnStrategy.getNextStepField(prince);
 
         if (next != null && EObstacle.PITFALL.equalsTo(next.getObstacle())) {
-            return turnStrategy.jump();
+            return turnStrategy.jump(true);
         }
 
         return turnStrategy.invokeNext(prince, turnStrategy);

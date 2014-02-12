@@ -56,7 +56,7 @@ public class PersiaStrategy implements GameStrategy {
         System.out.println("----");
         System.out.println("princeHealth:" + prince.getHealth());
 
-        TurnStrategy turnStrategy = new TurnStrategy(prince, gameStrategy, strategies);
+        TurnStrategy turnStrategy = gameStrategy.newStep(prince, steps, strategies);
         Action action = turnStrategy.invokeFirst(prince, turnStrategy);
         turnStrategy.setAction(action);
 
@@ -64,7 +64,6 @@ public class PersiaStrategy implements GameStrategy {
 
         gameStrategy = gameStrategy.clone();
         gameStrategy.getHistory().add(turnStrategy);
-        gameStrategy.updateLevelMap(turnStrategy);
 
         System.out.println("---");
         System.out.println("");

@@ -1,7 +1,6 @@
 package com.mycompany.princeextreme.actionstrategies;
 
 import com.mycompany.princeextreme.EDirection;
-import com.mycompany.princeextreme.GameStrategy;
 import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 import com.mycompany.princeextreme.TurnStrategy;
 import com.mycompany.princeextreme.Utils;
@@ -27,23 +26,6 @@ public class AttackEnemyStrategy implements ActionStrategy {
                     System.out.println("-- switch direction and find weapon");
                     turnStrategy.setStepDirection(turnStrategy.getStepDirection() == EDirection.FWD ? EDirection.BKW : EDirection.FWD);
                     turnStrategy.getGameStrategy().setDirection(turnStrategy.getStepDirection());
-                    return turnStrategy.invokeNext(prince, turnStrategy);
-                }
-
-                // ?
-                if (Utils.getHealth(obstacle) - Utils.getWeaponAttack(weapon) <= 0) {
-                    return turnStrategy.use(weapon, obstacle);
-                }
-
-                if (prince.getHealth() - Utils.getAttack(obstacle, 1) < GameStrategy.MIN_ATTACK_HEALTH) {
-                    System.out.println("-- retreat and heal");
-                    turnStrategy.setStepDirection(turnStrategy.getStepDirection() == EDirection.FWD ? EDirection.BKW : EDirection.FWD);
-                    int weaponAttackPerTurn = Utils.getWeaponAttack(weapon);
-                    int enemyHealth = Utils.getHealth(obstacle);
-                    int turnsNeeded = (int) Math.ceil(enemyHealth / weaponAttackPerTurn);
-                    turnStrategy.getGameStrategy().setNeededHealth(
-                            turnsNeeded * Utils.getAttack(obstacle, 1) + Utils.getAttack(obstacle, 2) + GameStrategy.MIN_ATTACK_HEALTH);
-                    turnStrategy.doNotHeal = true;
                     return turnStrategy.invokeNext(prince, turnStrategy);
                 }
 
