@@ -7,6 +7,7 @@ import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.action.Grab;
+import cz.tieto.princegame.common.action.Heal;
 import cz.tieto.princegame.common.action.JumpBackward;
 import cz.tieto.princegame.common.action.JumpForward;
 import cz.tieto.princegame.common.action.MoveBackward;
@@ -125,6 +126,10 @@ public class TurnStrategy {
         return new Grab();
     }
 
+    public Action heal() {
+        return new Heal();
+    }
+
     public Action use(Equipment eq, Obstacle obstacle) {
         return new Use(eq, obstacle);
     }
@@ -140,5 +145,4 @@ public class TurnStrategy {
     public int getPlayerPos() {
         return playerPos;
     }
-
 }

@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mycompany.princeextreme.actionstrategies.AttackEnemyStrategy;
+import com.mycompany.princeextreme.actionstrategies.ChopperStrategy;
 import com.mycompany.princeextreme.actionstrategies.EnterGateStrategy;
 import com.mycompany.princeextreme.actionstrategies.GrabEquipmentStrategy;
 import com.mycompany.princeextreme.actionstrategies.HealStrategy;
@@ -42,6 +43,7 @@ public class PersiaStrategy implements GameStrategy {
         strategies.add(new GrabEquipmentStrategy());
         strategies.add(new AttackEnemyStrategy());
         strategies.add(new PitfallStrategy());
+        strategies.add(new ChopperStrategy());
         strategies.add(new SimpleMoveStrategy());
     }
 
