@@ -11,43 +11,42 @@ public class LevelMap implements Cloneable {
     private Map<Integer, MapField> mapFields = new HashMap<Integer, MapField>();
 
     public void updateLevelMap(int pos, Prince player) {
-        Field field = player.look(0);
-        Field nextField = player.look(1);
-        Field prevField = player.look(-1);
+        final Field field = player.look(0);
+        final Field nextField = player.look(1);
+        final Field prevField = player.look(-1);
 
         MapField mapField = mapFields.get(pos);
         MapField nextMapField = mapFields.get(pos + 1);
         MapField prevMapField = mapFields.get(pos - 1);
 
-        if (mapField == null) {
+        if (field != null && mapField == null) {
             mapField = new MapField();
-            mapField.gameField = field;
         }
 
         if (nextField != null && nextMapField == null) {
             nextMapField = new MapField();
-            nextMapField.gameField = nextField;
         }
 
         if (prevField != null && prevMapField == null) {
             prevMapField = new MapField();
-            prevMapField.gameField = prevField;
         }
 
-        mapField.next = nextMapField;
-        mapField.prev = prevMapField;
-        mapField.gameField = field;
-        mapFields.put(pos, mapField);
+        if (mapField != null) {
+            mapField.setNext(nextMapField);
+            mapField.setPrevious(prevMapField);
+            mapField.setGameField(field);
+            mapFields.put(pos, mapField);
+        }
 
         if (nextMapField != null) {
-            nextMapField.prev = mapField;
-            nextMapField.gameField = nextField;
+            nextMapField.setPrevious(mapField);
+            nextMapField.setGameField(nextField);
             mapFields.put(pos + 1, nextMapField);
         }
 
         if (prevMapField != null) {
-            prevMapField.next = mapField;
-            prevMapField.gameField = prevField;
+            prevMapField.setNext(mapField);
+            prevMapField.setGameField(prevField);
             mapFields.put(pos - 1, prevMapField);
         }
     }
@@ -90,7 +89,7 @@ public class LevelMap implements Cloneable {
     }
 
     private boolean checkEnemy(EObstacle enemy, MapField mapField) {
-        return mapField != null && enemy.equalsTo(mapField.gameField.getObstacle()) && Utils.isAlive(mapField.gameField.getObstacle());
+        return mapField != null && enemy.equalsTo(mapField.getGameField().getObstacle()) && Utils.isAlive(mapField.getGameField().getObstacle());
     }
 
     @Override
@@ -106,9 +105,33 @@ public class LevelMap implements Cloneable {
     }
 
     public static class MapField {
-        public MapField prev;
-        public MapField next;
-        public Field gameField;
+        private MapField prev;
+        private MapField next;
+        private Field gameField;
+
+        public MapField getPrevious() {
+            return prev;
+        }
+
+        private void setPrevious(MapField prev) {
+            this.prev = prev;
+        }
+
+        public MapField getNext() {
+            return next;
+        }
+
+        private void setNext(MapField next) {
+            this.next = next;
+        }
+
+        public Field getGameField() {
+            return gameField;
+        }
+
+        private void setGameField(Field gameField) {
+            this.gameField = gameField;
+        }
 
     }
 

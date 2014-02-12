@@ -23,6 +23,8 @@ public class GameStrategy implements Cloneable {
 
     private int stepNumber;
 
+    private boolean retreat;
+
     public EDirection getDirection() {
         return this.direction;
     }
@@ -80,6 +82,20 @@ public class GameStrategy implements Cloneable {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * @return the retreat
+     */
+    public boolean isRetreat() {
+        return retreat;
+    }
+
+    /**
+     * @param retreat the retreat to set
+     */
+    public void setRetreat(boolean retreat) {
+        this.retreat = retreat;
     }
 
 }

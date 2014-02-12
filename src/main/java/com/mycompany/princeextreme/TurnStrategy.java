@@ -28,8 +28,6 @@ public class TurnStrategy {
     private Iterator<ActionStrategy> currentStrategy;
     private Action action;
 
-    public boolean retreat;
-
     public TurnStrategy(Prince prince, GameStrategy gameStrategy, List<ActionStrategy> strategies) {
         this.prince = prince;
         this.gameStrategy = gameStrategy;

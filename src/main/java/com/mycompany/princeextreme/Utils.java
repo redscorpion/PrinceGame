@@ -53,47 +53,22 @@ public class Utils {
         int playerPos = turnStrategy.getGameStrategy().getPlayerPos();
         LevelMap levelMap = turnStrategy.getGameStrategy().getLevelMap();
 
-        switch (turnStrategy.getStepDirection()) {
-        case BKW:
-            for (int i = 1; i <= jumpLength; i++) {
-                MapField mapField = levelMap.getMapField(playerPos - i);
-                if (mapField == null) {
+        int direction = (EDirection.FWD == turnStrategy.getStepDirection()) ? 1 : -1;
+
+        for (int i = 1; i <= jumpLength; i++) {
+            MapField mapField = levelMap.getMapField(playerPos + i * direction);
+            if (mapField == null || mapField.getGameField().getEquipment() != null) {
+                return false;
+            }
+            if (mapField.getGameField().getObstacle() != null) {
+                Obstacle obstacle = mapField.getGameField().getObstacle();
+                if (!isEnemy(obstacle) || isAlive(obstacle)) {
                     return false;
-                }
-                if (mapField.gameField.getEquipment() != null) {
-                    return false;
-                }
-                if (mapField.gameField.getObstacle() != null) {
-                    Obstacle obstacle = mapField.gameField.getObstacle();
-                    if (!isEnemy(obstacle) || isAlive(obstacle)) {
-                        return false;
-                    }
                 }
             }
-            return true;
-
-        case FWD:
-            for (int i = 1; i <= jumpLength; i++) {
-                MapField mapField = levelMap.getMapField(playerPos + i);
-                if (mapField == null) {
-                    return false;
-                }
-                if (mapField.gameField.getEquipment() != null) {
-                    return false;
-                }
-                if (mapField.gameField.getObstacle() != null) {
-                    Obstacle obstacle = mapField.gameField.getObstacle();
-                    if (!isEnemy(obstacle) || isAlive(obstacle)) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-
-        default:
         }
 
-        return false;
+        return true;
     }
 
     public static boolean isEnemy(Obstacle obstacle) {

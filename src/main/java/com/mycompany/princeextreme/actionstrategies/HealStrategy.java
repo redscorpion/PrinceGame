@@ -21,7 +21,6 @@ public class HealStrategy implements ActionStrategy {
             if (prince.getHealth() < prince.getMaxHealth()) {
                 return doHeal(prince, turnStrategy);
             }
-
         } else {
             System.out.println("-- it is not safe to heal here");
             if (shouldRetreat(prince)) {
@@ -42,15 +41,12 @@ public class HealStrategy implements ActionStrategy {
             if (lastStrategy.getAction() instanceof Heal) {
                 if (prince.getHealth() <= lastStrategy.getPrince().getHealth()) {
                     System.out.println(" -- but something is damaging me");
-                    if (lastStrategy.retreat == true) {
-                        System.out.println(" -- continue retreat in previous direction");
-                        turnStrategy.retreat = true;
-                        turnStrategy.setStepDirection(lastStrategy.getStepDirection());
-                    } else {
-                        if (shouldRetreat(prince)) {
-                            System.out.println("-- low health");
-                            beginRetreat(turnStrategy, lastStrategy.getStepDirection().opposite());
-                        }
+                    if (lastStrategy.getGameStrategy().isRetreat()) {
+                        System.out.println("-- continue retreat");
+                        beginRetreat(turnStrategy, lastStrategy.getStepDirection().opposite());
+                    } else if (shouldRetreat(prince)) {
+                        System.out.println("-- low health");
+                        beginRetreat(turnStrategy, lastStrategy.getStepDirection().opposite());
                     }
 
                     return turnStrategy.invokeNext(prince, turnStrategy);
@@ -58,13 +54,22 @@ public class HealStrategy implements ActionStrategy {
             }
         }
 
+        if (turnStrategy.getGameStrategy().isRetreat()) {
+            stopRetreat(turnStrategy);
+        }
+
         return turnStrategy.heal();
     }
 
     private void beginRetreat(TurnStrategy turnStrategy, EDirection retreatDirection) {
         System.out.println(" -- retreat, direction: " + retreatDirection);
-        turnStrategy.retreat = true;
+        turnStrategy.getGameStrategy().setRetreat(true);
         turnStrategy.setStepDirection(retreatDirection);
+    }
+
+    private void stopRetreat(TurnStrategy turnStrategy) {
+        System.out.println(" -- ending retreat");
+        turnStrategy.getGameStrategy().setRetreat(false);
     }
 
     public boolean shouldRetreat(Prince prince) {
