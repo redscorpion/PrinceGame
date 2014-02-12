@@ -35,13 +35,15 @@ public class AttackEnemyStrategy implements ActionStrategy {
                     return turnStrategy.use(weapon, obstacle);
                 }
 
-                if (prince.getHealth() - Utils.getAttack(obstacle) < GameStrategy.MIN_ATTACK_HEALTH) {
+                if (prince.getHealth() - Utils.getAttack(obstacle, 1) < GameStrategy.MIN_ATTACK_HEALTH) {
                     System.out.println("-- retreat and heal");
                     turnStrategy.setStepDirection(turnStrategy.getStepDirection() == EDirection.FWD ? EDirection.BKW : EDirection.FWD);
                     int weaponAttackPerTurn = Utils.getWeaponAttack(weapon);
                     int enemyHealth = Utils.getHealth(obstacle);
                     int turnsNeeded = (int) Math.ceil(enemyHealth / weaponAttackPerTurn);
-                    turnStrategy.getGameStrategy().setNeededHealth(turnsNeeded * Utils.getAttack(obstacle) + GameStrategy.MIN_ATTACK_HEALTH);
+                    turnStrategy.getGameStrategy().setNeededHealth(
+                            turnsNeeded * Utils.getAttack(obstacle, 1) + Utils.getAttack(obstacle, 2) + GameStrategy.MIN_ATTACK_HEALTH);
+                    turnStrategy.doNotHeal = true;
                     return turnStrategy.invokeNext(prince, turnStrategy);
                 }
 

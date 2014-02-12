@@ -28,6 +28,7 @@ public class TurnStrategy {
     private Action action;
 
     private int playerPos;
+    public boolean doNotHeal;
 
     public TurnStrategy(Prince prince, GameStrategy gameStrategy, List<ActionStrategy> strategies) {
         this.prince = prince;

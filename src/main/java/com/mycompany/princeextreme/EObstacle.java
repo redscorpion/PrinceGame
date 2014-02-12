@@ -7,12 +7,12 @@ import cz.tieto.princegame.common.gameobject.Obstacle;
 
 public enum EObstacle {
 
-    PITFALL("pitfall", 0), KNIGHT("knight", 1);
+    PITFALL("pitfall", 0, 0), KNIGHT("knight", 1, 0), DRAGON("dragon", 2, 1);
 
     private String name;
-    int attack;
+    int[] attack;
 
-    private EObstacle(String name, int attack) {
+    private EObstacle(String name, int... attack) {
         this.name = name;
         this.attack = attack;
     }
@@ -21,8 +21,8 @@ public enum EObstacle {
         return name;
     }
 
-    public int getAttack() {
-        return attack;
+    public int getAttack(int distance) {
+        return attack[distance - 1];
     }
 
     public boolean equalsTo(Obstacle ob) {

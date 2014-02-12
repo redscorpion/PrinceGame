@@ -250,14 +250,14 @@ public class PersiaStrategyTest {
             if (prev != null && prev.getObstacle() instanceof Knight) {
                 Knight knight = ((Knight) prev.getObstacle());
                 if (knight.getHealth() > 0) {
-                    princeHealth -= EObstacle.KNIGHT.getAttack();
+                    princeHealth -= EObstacle.KNIGHT.getAttack(1);
                 }
             }
             TestField next = getLookAt(1);
             if (next != null && next.getObstacle() instanceof Knight) {
                 Knight knight = ((Knight) next.getObstacle());
                 if (knight.getHealth() > 0) {
-                    princeHealth -= EObstacle.KNIGHT.getAttack();
+                    princeHealth -= EObstacle.KNIGHT.getAttack(1);
                 }
             }
         }
@@ -282,12 +282,12 @@ public class PersiaStrategyTest {
                 TestField prev = getLookAt(-1);
                 if (prev != null && prev.getObstacle() instanceof Knight) {
                     Knight knight = ((Knight) prev.getObstacle());
-                    knight.setHealth(knight.getHealth() - EObstacle.KNIGHT.getAttack());
+                    knight.setHealth(knight.getHealth() - EObstacle.KNIGHT.getAttack(1));
                 }
                 TestField next = getLookAt(1);
                 if (next != null && next.getObstacle() instanceof Knight) {
                     Knight knight = ((Knight) next.getObstacle());
-                    knight.setHealth(knight.getHealth() - EObstacle.KNIGHT.getAttack());
+                    knight.setHealth(knight.getHealth() - EObstacle.KNIGHT.getAttack(1));
                 }
             }
         }
