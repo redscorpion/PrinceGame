@@ -198,7 +198,7 @@ public class Utils {
         Game retreatGame = turnStrategy.getGame().clone(true);
         retreatGame.setRetreat(true);
         retreatGame.setAllowJumping(allowJumping);
-        TurnStrategy retreatStrategy = new TurnStrategy(turnStrategy.getPrince(), retreatGame, PersiaStrategy.retreatStrategies);
+        TurnStrategy retreatStrategy = new TurnStrategy(turnStrategy.getPrince(), retreatGame, PersiaStrategy.retreatActionStrategies);
         retreatStrategy.setStepDirection(retreatDirection);
         Action retreatAction = retreatStrategy.evaluate();
         retreatGame.setAction(retreatAction);

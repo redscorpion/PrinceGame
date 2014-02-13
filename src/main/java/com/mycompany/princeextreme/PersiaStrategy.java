@@ -15,6 +15,7 @@ import com.mycompany.princeextreme.actionstrategies.EnterGateStrategy;
 import com.mycompany.princeextreme.actionstrategies.GrabEquipmentStrategy;
 import com.mycompany.princeextreme.actionstrategies.HealStrategy;
 import com.mycompany.princeextreme.actionstrategies.PitfallStrategy;
+import com.mycompany.princeextreme.actionstrategies.RetreatStrategy;
 import com.mycompany.princeextreme.actionstrategies.SimpleMoveStrategy;
 
 import cz.tieto.princegame.common.GameStrategy;
@@ -31,24 +32,25 @@ public class PersiaStrategy implements GameStrategy {
 
     }
 
-    public static List<ActionStrategy> strategies = new ArrayList<ActionStrategy>();
-    public static List<ActionStrategy> retreatStrategies = new ArrayList<ActionStrategy>();
+    public static List<ActionStrategy> actionStrategies = new ArrayList<ActionStrategy>();
+    public static List<ActionStrategy> retreatActionStrategies = new ArrayList<ActionStrategy>();
 
     static {
         setupLogger();
 
-        strategies.add(new EnterGateStrategy());
-        strategies.add(new HealStrategy());
-        strategies.add(new GrabEquipmentStrategy());
-        strategies.add(new AttackEnemyStrategy());
-        strategies.add(new PitfallStrategy());
-        strategies.add(new ChopperStrategy());
-        strategies.add(new SimpleMoveStrategy());
+        actionStrategies.add(new EnterGateStrategy());
+        actionStrategies.add(new RetreatStrategy());
+        actionStrategies.add(new HealStrategy());
+        actionStrategies.add(new GrabEquipmentStrategy());
+        actionStrategies.add(new AttackEnemyStrategy());
+        actionStrategies.add(new PitfallStrategy());
+        actionStrategies.add(new ChopperStrategy());
+        actionStrategies.add(new SimpleMoveStrategy());
 
-        retreatStrategies.add(new EnterGateStrategy());
-        retreatStrategies.add(new PitfallStrategy());
-        retreatStrategies.add(new ChopperStrategy());
-        retreatStrategies.add(new SimpleMoveStrategy());
+        retreatActionStrategies.add(new EnterGateStrategy());
+        retreatActionStrategies.add(new PitfallStrategy());
+        retreatActionStrategies.add(new ChopperStrategy());
+        retreatActionStrategies.add(new SimpleMoveStrategy());
     }
 
     private int step;
@@ -65,7 +67,7 @@ public class PersiaStrategy implements GameStrategy {
         Log.info("---------");
         Log.info("-- prince health: " + prince.getHealth());
 
-        TurnStrategy turnStrategy = gameStrategy.newTurnStrategy(prince, step, strategies);
+        TurnStrategy turnStrategy = gameStrategy.newTurnStrategy(prince, step, actionStrategies);
 
         Action action = turnStrategy.evaluate();
         Log.info("-- turn action: " + action.getClass().getSimpleName());
