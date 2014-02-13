@@ -26,7 +26,6 @@ public class TurnStrategy {
 
     private EDirection stepDirection;
     private Iterator<ActionStrategy> currentStrategy;
-    private Action action;
 
     public TurnStrategy(Prince prince, Game game, List<ActionStrategy> strategies) {
         this.prince = prince;
@@ -72,12 +71,12 @@ public class TurnStrategy {
         return next;
     }
 
-    public Action invokeFirst(Prince prince, TurnStrategy context) {
+    public Action evaluate() {
         currentStrategy = strategies.iterator();
-        return invokeNext(prince, context);
+        return evaluateNext();
     }
 
-    public Action invokeNext(Prince prince, TurnStrategy context) {
+    public Action evaluateNext() {
         if (currentStrategy.hasNext()) {
             ActionStrategy next = currentStrategy.next();
             return next.getAction(prince, this);
@@ -125,14 +124,6 @@ public class TurnStrategy {
 
     public Action use(Equipment eq, Obstacle obstacle) {
         return new Use(eq, obstacle);
-    }
-
-    public void setAction(Action action) {
-        this.action = action;
-    }
-
-    public Action getAction() {
-        return action;
     }
 
     public List<ActionStrategy> getStrategies() {

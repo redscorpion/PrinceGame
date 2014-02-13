@@ -16,6 +16,6 @@ public class GrabEquipmentStrategy implements ActionStrategy {
             return turnStrategy.grab();
         }
 
-        return turnStrategy.invokeNext(prince, turnStrategy);
+        return turnStrategy.evaluateNext();
     }
 }

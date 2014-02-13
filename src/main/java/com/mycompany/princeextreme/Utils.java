@@ -1,5 +1,7 @@
 package com.mycompany.princeextreme;
 
+import java.util.List;
+
 import com.mycompany.princeextreme.LevelMap.MapField;
 
 import cz.tieto.princegame.common.action.Action;
@@ -120,13 +122,22 @@ public class Utils {
         return damage == null || damage <= 0;
     }
 
-    public static EDirection geEnemyDirection(TurnStrategy turnStrategy) {
-        Game gameStrategy = turnStrategy.getGame();
+    public static Obstacle getNearestEnemy(Game game, int pos, int radius) {
+        List<Obstacle> enemies = game.getLevelMap().findEnemyNear(pos, radius);
+        return enemies.size() > 0 ? enemies.get(0) : null;
+    }
+
+    public static EDirection getEnemyDirection(Game game, Obstacle enemy) {
+        return game.getLevelMap().getEnemyDirection(enemy, game.getPricePos());
+    }
+
+    public static EDirection getAttackingEnemyDirection(TurnStrategy turnStrategy) {
+        Game game = turnStrategy.getGame();
 
         EObstacle[] values = EObstacle.values();
         for (EObstacle eObstacle : values) {
             if (isEnemy(eObstacle)) {
-                EDirection enemyDirection = gameStrategy.getLevelMap().getEnemyDirection(eObstacle, gameStrategy.getPricePos(), eObstacle.getAttackRange());
+                EDirection enemyDirection = game.getLevelMap().getAttackingEnemyDirection(eObstacle, game.getPricePos(), eObstacle.getAttackRange());
                 if (enemyDirection != null) {
                     return enemyDirection;
                 }
@@ -161,11 +172,10 @@ public class Utils {
     }
 
     public static Action getBestRetreatAction(TurnStrategy turnStrategy, EDirection retreatDirection) {
-        return getBestRetreatResult(turnStrategy, retreatDirection).getAction();
+        return getBestRetreatResult(turnStrategy, retreatDirection).getGame().getAction();
     }
 
     private static TurnStrategy getBestRetreatResult(TurnStrategy turnStrategy, EDirection retreatDirection) {
-
         TurnStrategy retreatResultWithoutJumping = getRetreatResult(turnStrategy, retreatDirection, false);
         int retreatPosWithoutJumping = getRetreatPossition(retreatResultWithoutJumping, retreatResultWithoutJumping.getGame().getPricePos());
         Integer damageWithoutJumping = retreatResultWithoutJumping.getGame().getLevelMap().getDamageAt(retreatPosWithoutJumping);
@@ -190,17 +200,18 @@ public class Utils {
     }
 
     private static TurnStrategy getRetreatResult(TurnStrategy turnStrategy, EDirection retreatDirection, boolean allowJumping) {
-        Game retreatContext = turnStrategy.getGame().clone(true);
-        retreatContext.setRetreat(true);
-        retreatContext.setAllowJumping(allowJumping);
-        TurnStrategy retreatStrategy = new TurnStrategy(turnStrategy.getPrince(), retreatContext, PersiaStrategy.retreatStrategies);
+        Game retreatGame = turnStrategy.getGame().clone(true);
+        retreatGame.setRetreat(true);
+        retreatGame.setAllowJumping(allowJumping);
+        TurnStrategy retreatStrategy = new TurnStrategy(turnStrategy.getPrince(), retreatGame, PersiaStrategy.retreatStrategies);
         retreatStrategy.setStepDirection(retreatDirection);
-        Action retreatAction = retreatStrategy.invokeNext(retreatStrategy.getPrince(), retreatStrategy);
-        retreatStrategy.setAction(retreatAction);
+        Action retreatAction = retreatStrategy.evaluate();
+        retreatGame.setAction(retreatAction);
         return retreatStrategy;
     }
 
     private static int getRetreatPossition(TurnStrategy retreatResult, int currPlayerPos) {
-        return Utils.getNewPrincePossition(retreatResult.getGame().getPricePos(), retreatResult.getAction());
+        return Utils.getNewPrincePossition(retreatResult.getGame().getPricePos(), retreatResult.getGame().getAction());
     }
+
 }

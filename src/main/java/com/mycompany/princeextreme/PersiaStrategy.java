@@ -51,6 +51,35 @@ public class PersiaStrategy implements GameStrategy {
         retreatStrategies.add(new SimpleMoveStrategy());
     }
 
+    private int step;
+
+    private Game gameStrategy;
+
+    public PersiaStrategy() {
+        step = 0;
+        gameStrategy = new Game();
+    }
+
+    public Action step(Prince prince) {
+        Log.info("STEP " + ++step);
+        Log.info("---------");
+        Log.info("-- prince health: " + prince.getHealth());
+
+        TurnStrategy turnStrategy = gameStrategy.newTurnStrategy(prince, step, strategies);
+
+        Action action = turnStrategy.evaluate();
+        Log.info("-- turn action: " + action.getClass().getSimpleName());
+
+        gameStrategy.setAction(action);
+        gameStrategy = gameStrategy.clone(true);
+        gameStrategy.getHistory().add(turnStrategy);
+        Utils.updatePrincePossition(gameStrategy, action);
+
+        Log.info("---");
+
+        return action;
+    }
+
     private static void setupLogger() {
         Logger logger = Logger.getLogger(PersiaStrategy.class.getPackage().getName());
         logger.setLevel(Level.FINE);
@@ -69,30 +98,6 @@ public class PersiaStrategy implements GameStrategy {
 
         logger.setUseParentHandlers(false);
         logger.addHandler(consoleHandler);
-    }
-
-    private int steps = 0;
-
-    private com.mycompany.princeextreme.Game gameStrategy = new com.mycompany.princeextreme.Game();
-
-    public Action step(Prince prince) {
-        Log.info("STEP " + ++steps);
-        Log.info("---------");
-        Log.info("-- prince health: " + prince.getHealth());
-
-        TurnStrategy turnStrategy = gameStrategy.newStep(prince, steps, strategies);
-        Action action = turnStrategy.invokeFirst(prince, turnStrategy);
-
-        Log.info("-- turn action: " + action.getClass().getSimpleName());
-
-        turnStrategy.setAction(action);
-        gameStrategy = gameStrategy.clone(true);
-        gameStrategy.getHistory().add(turnStrategy);
-        Utils.updatePrincePossition(gameStrategy, action);
-
-        Log.info("---");
-
-        return action;
     }
 
 }

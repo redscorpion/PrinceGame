@@ -1,10 +1,14 @@
 package com.mycompany.princeextreme;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import cz.tieto.princegame.common.gameobject.Field;
+import cz.tieto.princegame.common.gameobject.Obstacle;
 import cz.tieto.princegame.common.gameobject.Prince;
 
 public class LevelMap implements Cloneable {
@@ -43,10 +47,37 @@ public class LevelMap implements Cloneable {
     }
 
     public boolean isEnemyNear(EObstacle enemy, int pos, int radius) {
-        return getEnemyDirection(enemy, pos, radius) != null;
+        return getAttackingEnemyDirection(enemy, pos, radius) != null;
     }
 
-    public EDirection getEnemyDirection(EObstacle enemy, int pos, int radius) {
+    public List<Obstacle> findEnemyNear(int pos, int radius) {
+
+        List<Obstacle> enemies = new ArrayList<Obstacle>();
+
+        MapField mapField;
+
+        for (int i = 0; i <= radius; i++) {
+            mapField = mapFields.get(pos + i);
+            if (mapField != null) {
+                if (checkEnemy(mapField)) {
+                    enemies.add(mapField.getGameField().getObstacle());
+                }
+            }
+        }
+
+        for (int i = 1; i <= radius; i++) {
+            mapField = mapFields.get(pos - i);
+            if (mapField != null) {
+                if (checkEnemy(mapField)) {
+                    enemies.add(mapField.getGameField().getObstacle());
+                }
+            }
+        }
+
+        return enemies;
+    }
+
+    public EDirection getAttackingEnemyDirection(EObstacle enemy, int pos, int radius) {
 
         MapField mapField;
 
@@ -71,12 +102,26 @@ public class LevelMap implements Cloneable {
         return null;
     }
 
+    public EDirection getEnemyDirection(Obstacle enemy, int princePos) {
+        for (Entry<Integer, MapField> entry : mapFields.entrySet()) {
+            if (entry.getValue() != null && entry.getValue().getGameField() != null && entry.getValue().getGameField().getObstacle() != null
+                    && entry.getValue().getGameField().getObstacle().getId() == enemy.getId()) {
+                return princePos < entry.getKey() ? EDirection.FWD : EDirection.BKW;
+            }
+        }
+        return null;
+    }
+
     public void reset() {
         mapFields.clear();
     }
 
     private boolean checkEnemy(EObstacle enemy, MapField mapField) {
-        return mapField != null && enemy.equalsTo(mapField.getGameField().getObstacle()) && Utils.isAlive(mapField.getGameField().getObstacle());
+        return mapField != null && enemy.equalsTo(mapField.getGameField().getObstacle()) && Utils.isAliveEnemy(mapField.getGameField().getObstacle());
+    }
+
+    private boolean checkEnemy(MapField mapField) {
+        return mapField != null && Utils.isAliveEnemy(mapField.getGameField().getObstacle());
     }
 
     private void updateMapField(int pos, Field gameField) {
@@ -89,9 +134,9 @@ public class LevelMap implements Cloneable {
 
         if (mapField != null) {
             Field oldGameField = mapField.getGameField();
-            if (oldGameField != null && Utils.isEnemy(oldGameField.getObstacle()) && Utils.isAlive(oldGameField.getObstacle())) {
-                if (gameField != null && Utils.isEnemy(gameField.getObstacle()) && !Utils.isAlive(gameField.getObstacle())) {
-                    Log.fine("-- " + oldGameField.getObstacle().getName() + " is now dead");
+            if (oldGameField != null && Utils.isAliveEnemy(oldGameField.getObstacle())) {
+                if (gameField != null && Utils.isDeadEnemy(gameField.getObstacle())) {
+                    Log.fine("-- enemy " + oldGameField.getObstacle().getName() + " is now dead");
                     int attackRange = Utils.getAttackRange(oldGameField.getObstacle());
                     for (int i = 1; i <= attackRange; i++) {
                         MapField f = mapFields.get(pos + i);

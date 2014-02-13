@@ -1,7 +1,7 @@
 package com.mycompany.princeextreme.actionstrategies;
 
-import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 import com.mycompany.princeextreme.EObstacle;
+import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 import com.mycompany.princeextreme.TurnStrategy;
 
 import cz.tieto.princegame.common.action.Action;
@@ -17,6 +17,6 @@ public class PitfallStrategy implements ActionStrategy {
             return turnStrategy.jump(true);
         }
 
-        return turnStrategy.invokeNext(prince, turnStrategy);
+        return turnStrategy.evaluateNext();
     }
 }

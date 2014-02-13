@@ -27,7 +27,7 @@ public class SimpleMoveStrategy implements ActionStrategy {
             turnStrategy.getGame().setTurnBack(true);
             turnStrategy.setStepDirection(turnStrategy.getStepDirection().opposite());
             turnStrategy.getGame().setStepDirection(turnStrategy.getStepDirection());
-            return turnStrategy.invokeFirst(prince, turnStrategy);
+            return turnStrategy.evaluate();
         }
 
         if (Utils.isSafeToMoveFast(turnStrategy, 2) && turnStrategy.getGame().isJumpingAllowed()) {

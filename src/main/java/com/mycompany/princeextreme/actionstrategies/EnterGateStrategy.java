@@ -13,6 +13,6 @@ public class EnterGateStrategy implements ActionStrategy {
         if (prince.look(0).isGate()) {
             return new EnterGate();
         }
-        return turnStrategy.invokeNext(prince, turnStrategy);
+        return turnStrategy.evaluateNext();
     }
 }

@@ -2,9 +2,9 @@ package com.mycompany.princeextreme.actionstrategies;
 
 import java.util.logging.Logger;
 
+import com.mycompany.princeextreme.EDirection;
 import com.mycompany.princeextreme.Game;
 import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
-import com.mycompany.princeextreme.EDirection;
 import com.mycompany.princeextreme.TurnStrategy;
 import com.mycompany.princeextreme.Utils;
 
@@ -24,7 +24,7 @@ public class HealStrategy implements ActionStrategy {
             }
         } else {
             Log.fine("-- it is not safe to heal here");
-            EDirection enemyDirection = Utils.geEnemyDirection(turnStrategy);
+            EDirection enemyDirection = Utils.getAttackingEnemyDirection(turnStrategy);
             if (enemyDirection == null) {
                 Log.fine("-- and i don't see the enemy");
             }
@@ -50,7 +50,7 @@ public class HealStrategy implements ActionStrategy {
             }
         }
 
-        return turnStrategy.invokeNext(prince, turnStrategy);
+        return turnStrategy.evaluateNext();
     }
 
     private Action doHeal(Prince prince, TurnStrategy turnStrategy) {
@@ -87,6 +87,5 @@ public class HealStrategy implements ActionStrategy {
 
         return prince.getHealth() < Math.min(prince.getMaxHealth() / 2, Game.MIN_HEALTH);
     }
-
 
 }

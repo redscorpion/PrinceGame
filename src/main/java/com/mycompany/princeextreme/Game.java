@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 
+import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.action.Heal;
 import cz.tieto.princegame.common.gameobject.Prince;
 
@@ -32,14 +33,17 @@ public class Game implements Cloneable {
 
     private boolean allowJumping;
 
+    private Action action;
+
     public Game() {
-        initFlags();
+        initialize();
     }
 
-    private void initFlags() {
+    private void initialize() {
         retreat = false;
         turnBack = false;
         allowJumping = true;
+        action = null;
     }
 
     public EDirection getDirection() {
@@ -74,6 +78,14 @@ public class Game implements Cloneable {
         return stepNumber;
     }
 
+    public void setAction(Action action) {
+        this.action = action;
+    }
+
+    public Action getAction() {
+        return action;
+    }
+
     public boolean isRetreat() {
         return retreat;
     }
@@ -98,7 +110,7 @@ public class Game implements Cloneable {
         return allowJumping;
     }
 
-    public TurnStrategy newStep(Prince prince, int stepNumber, List<ActionStrategy> strategies) {
+    public TurnStrategy newTurnStrategy(Prince prince, int stepNumber, List<ActionStrategy> strategies) {
         TurnStrategy turnStrategy = new TurnStrategy(prince, this, strategies);
         this.stepNumber = stepNumber;
         updateLevelMap(prince);
@@ -114,7 +126,7 @@ public class Game implements Cloneable {
         TurnStrategy lastStrategy = getHistory().lastElement();
         if (lastStrategy != null) {
             int expectedHealth = lastStrategy.getPrince().getHealth();
-            if (lastStrategy.getAction() instanceof Heal && lastStrategy.getPrince().getHealth() < lastStrategy.getPrince().getMaxHealth()) {
+            if (lastStrategy.getGame().getAction() instanceof Heal && lastStrategy.getPrince().getHealth() < lastStrategy.getPrince().getMaxHealth()) {
                 expectedHealth++;
             }
             int damage = expectedHealth - prince.getHealth();
@@ -128,13 +140,13 @@ public class Game implements Cloneable {
         return clone(false);
     }
 
-    public Game clone(boolean clearFlags) {
+    public Game clone(boolean initialize) {
         try {
             Game clone = (Game) super.clone();
             clone.history = new GameHistory(history);
             clone.levelMap = levelMap.clone();
-            if (clearFlags) {
-                clone.initFlags();
+            if (initialize) {
+                clone.initialize();
             }
             return clone;
         } catch (CloneNotSupportedException e) {
