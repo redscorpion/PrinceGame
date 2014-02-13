@@ -14,6 +14,8 @@ public class HealStrategy implements ActionStrategy {
 
     private static final Logger Log = Logger.getLogger(HealStrategy.class.getName());
 
+    private static final double RETREAT_HEAL_PCT = 0.333;
+
     public Action getAction(Prince prince, TurnStrategy turnStrategy) {
 
         if (Utils.isSafeToHealHere(turnStrategy)) {
@@ -47,7 +49,7 @@ public class HealStrategy implements ActionStrategy {
                 beginRetreat(turnStrategy, enemyDirection.opposite());
                 Action bestRetreatAction = Utils.getBestRetreatAction(turnStrategy, enemyDirection.opposite());
                 if (Utils.isHeal(bestRetreatAction)) {
-                    Log.fine("-- need to heal!");
+                    Log.fine("-- not good, we can only heal!");
                 }
                 return bestRetreatAction;
             }
@@ -78,16 +80,18 @@ public class HealStrategy implements ActionStrategy {
     }
 
     public boolean shouldRetreat(Prince prince, TurnStrategy turnStrategy, EDirection retreatDirection) {
-        if (retreatDirection != null) {
-            Integer damage = turnStrategy.getGame().getLevelMap().getDamageAt(turnStrategy.getGame().getPricePos());
-            if (damage != null) {
-                Integer retreatDamage = Utils.getSmallestRetreatDamage(turnStrategy, retreatDirection);
+        Integer damage = turnStrategy.getGame().getLevelMap().getDamageAt(turnStrategy.getGame().getPricePos());
+        if (damage != null && retreatDirection != null) {
+            TurnStrategy bestRetreatResult = Utils.getBestRetreatResult(turnStrategy, retreatDirection);
+            int retreatPos = Utils.getRetreatPossition(bestRetreatResult, bestRetreatResult.getGame().getPricePos());
+            if (turnStrategy.getGame().getPricePos() != retreatPos) {
+                Integer retreatDamage = bestRetreatResult.getGame().getLevelMap().getDamageAt(retreatPos);
                 if (retreatDamage != null) {
                     return prince.getHealth() <= damage + retreatDamage;
                 }
             }
         }
 
-        return prince.getHealth() < prince.getMaxHealth() / 2;
+        return (damage != null && prince.getHealth() <= damage) || prince.getHealth() < Math.ceil(prince.getMaxHealth() * RETREAT_HEAL_PCT);
     }
 }

@@ -166,17 +166,11 @@ public class Utils {
         return newPossition;
     }
 
-    public static Integer getSmallestRetreatDamage(TurnStrategy turnStrategy, EDirection retreatDirection) {
-        TurnStrategy retreatResult = getBestRetreatResult(turnStrategy, retreatDirection);
-        int retreatPos = getRetreatPossition(retreatResult, retreatResult.getGame().getPricePos());
-        return retreatResult.getGame().getLevelMap().getDamageAt(retreatPos);
-    }
-
     public static Action getBestRetreatAction(TurnStrategy turnStrategy, EDirection retreatDirection) {
         return getBestRetreatResult(turnStrategy, retreatDirection).getGame().getAction();
     }
 
-    private static TurnStrategy getBestRetreatResult(TurnStrategy turnStrategy, EDirection retreatDirection) {
+    public static TurnStrategy getBestRetreatResult(TurnStrategy turnStrategy, EDirection retreatDirection) {
         TurnStrategy retreatResultWithoutJumping = getRetreatResult(turnStrategy, retreatDirection, false);
         int retreatPosWithoutJumping = getRetreatPossition(retreatResultWithoutJumping, retreatResultWithoutJumping.getGame().getPricePos());
         Integer damageWithoutJumping = retreatResultWithoutJumping.getGame().getLevelMap().getDamageAt(retreatPosWithoutJumping);
@@ -211,7 +205,7 @@ public class Utils {
         return retreatStrategy;
     }
 
-    private static int getRetreatPossition(TurnStrategy retreatResult, int currPlayerPos) {
+    public static int getRetreatPossition(TurnStrategy retreatResult, int currPlayerPos) {
         return Utils.getNewPrincePossition(retreatResult.getGame().getPricePos(), retreatResult.getGame().getAction());
     }
 
