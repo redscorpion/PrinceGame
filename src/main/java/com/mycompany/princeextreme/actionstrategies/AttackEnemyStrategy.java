@@ -19,7 +19,7 @@ public class AttackEnemyStrategy implements ActionStrategy {
     private static final int ATTACK_RANGE = 1;
 
     public Action getAction(Prince prince, TurnStrategy turnStrategy) {
-        Obstacle enemy = Utils.getNearestEnemy(turnStrategy.getGame(), turnStrategy.getGame().getPricePos(), ATTACK_RANGE);
+        Obstacle enemy = Utils.getNearestEnemy(turnStrategy.getGame(), turnStrategy.getGame().getPrincePos(), ATTACK_RANGE);
         if (enemy != null) {
             EDirection enemyDirection = Utils.getEnemyDirection(turnStrategy.getGame(), enemy);
             turnStrategy.setStepDirection(enemyDirection);

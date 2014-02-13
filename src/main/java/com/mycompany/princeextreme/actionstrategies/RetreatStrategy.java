@@ -74,11 +74,11 @@ public class RetreatStrategy implements ActionStrategy {
     }
 
     public boolean shouldRetreat(Prince prince, TurnStrategy turnStrategy, EDirection retreatDirection) {
-        Integer damage = turnStrategy.getGame().getLevelMap().getDamageAt(turnStrategy.getGame().getPricePos());
+        Integer damage = turnStrategy.getGame().getLevelMap().getDamageAt(turnStrategy.getGame().getPrincePos());
         if (damage != null && retreatDirection != null) {
             TurnStrategy bestRetreatResult = Utils.getBestRetreatResult(turnStrategy, retreatDirection);
-            int retreatPos = Utils.getRetreatPossition(bestRetreatResult, bestRetreatResult.getGame().getPricePos());
-            if (turnStrategy.getGame().getPricePos() != retreatPos) {
+            int retreatPos = Utils.getRetreatPossition(bestRetreatResult, bestRetreatResult.getGame().getPrincePos());
+            if (turnStrategy.getGame().getPrincePos() != retreatPos) {
                 Integer retreatDamage = bestRetreatResult.getGame().getLevelMap().getDamageAt(retreatPos);
                 if (retreatDamage != null) {
                     return prince.getHealth() <= damage + retreatDamage;

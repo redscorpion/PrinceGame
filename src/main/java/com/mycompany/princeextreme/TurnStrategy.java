@@ -100,12 +100,12 @@ public class TurnStrategy {
     public Action jump(boolean shouldBeSafe) {
         switch (stepDirection) {
         case FWD:
-            if (!shouldBeSafe && getGame().getLevelMap().getMapField(getGame().getPricePos()) == null) {
+            if (!shouldBeSafe && getGame().getLevelMap().getMapField(getGame().getPrincePos()) == null) {
                 getGame().resetLevelMap();
             }
             return new JumpForward();
         case BKW:
-            if (!shouldBeSafe && getGame().getLevelMap().getMapField(getGame().getPricePos()) == null) {
+            if (!shouldBeSafe && getGame().getLevelMap().getMapField(getGame().getPrincePos()) == null) {
                 getGame().resetLevelMap();
             }
             return new JumpBackward();

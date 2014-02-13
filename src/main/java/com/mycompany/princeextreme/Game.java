@@ -22,7 +22,7 @@ public class Game implements Cloneable {
 
     private GameHistory history = new GameHistory();
 
-    private int playerPos = 0;
+    private int princePos = 0;
 
     private int stepNumber = 0;
 
@@ -65,12 +65,12 @@ public class Game implements Cloneable {
         return levelMap;
     }
 
-    public int getPricePos() {
-        return playerPos;
+    public int getPrincePos() {
+        return princePos;
     }
 
-    public void setPlayerPos(int playerPos) {
-        this.playerPos = playerPos;
+    public void setPrincePos(int princePos) {
+        this.princePos = princePos;
     }
 
     public int getStepNumber() {
@@ -117,7 +117,7 @@ public class Game implements Cloneable {
     }
 
     private void updateLevelMap(Prince prince) {
-        levelMap.updateLevelMap(getPricePos(), prince);
+        levelMap.updateLevelMap(getPrincePos(), prince);
         updateFieldDamage(prince);
     }
 
@@ -129,7 +129,7 @@ public class Game implements Cloneable {
                 expectedHealth++;
             }
             int damage = expectedHealth - prince.getHealth();
-            levelMap.updateFieldDamage(getPricePos(), damage);
+            levelMap.updateFieldDamage(getPrincePos(), damage);
             Log.fine("-- damage : " + damage);
         }
     }

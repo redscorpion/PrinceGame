@@ -46,8 +46,16 @@ public class LevelMap implements Cloneable {
         return mapFields.get(pos);
     }
 
-    public boolean isEnemyNear(EObstacle enemy, int pos, int radius) {
-        return getAttackingEnemyDirection(enemy, pos, radius) != null;
+    public List<Obstacle> getAllEnemies() {
+        List<Obstacle> enemies = new ArrayList<Obstacle>();
+
+        for (MapField mapField : mapFields.values()) {
+            if (isDeadly(mapField)) {
+                enemies.add(mapField.getGameField().getObstacle());
+            }
+        }
+
+        return enemies;
     }
 
     public List<Obstacle> findEnemyNear(int pos, int radius) {
@@ -58,69 +66,45 @@ public class LevelMap implements Cloneable {
 
         for (int i = 0; i <= radius; i++) {
             mapField = mapFields.get(pos + i);
-            if (mapField != null) {
-                if (checkEnemy(mapField)) {
-                    enemies.add(mapField.getGameField().getObstacle());
-                }
+            if (isDeadly(mapField)) {
+                enemies.add(mapField.getGameField().getObstacle());
             }
         }
 
         for (int i = 1; i <= radius; i++) {
             mapField = mapFields.get(pos - i);
-            if (mapField != null) {
-                if (checkEnemy(mapField)) {
-                    enemies.add(mapField.getGameField().getObstacle());
-                }
+            if (isDeadly(mapField)) {
+                enemies.add(mapField.getGameField().getObstacle());
             }
         }
 
         return enemies;
     }
 
-    public EDirection getAttackingEnemyDirection(EObstacle enemy, int pos, int radius) {
-
-        MapField mapField;
-
-        for (int i = 0; i <= radius; i++) {
-            mapField = mapFields.get(pos + i);
-            if (mapField != null) {
-                if (checkEnemy(enemy, mapField)) {
-                    return EDirection.FWD;
-                }
-            }
+    public EDirection getEnemyDirection(Obstacle enemy, int princePos) {
+        int distance = getEnemyDistance(enemy, princePos);
+        if (Integer.MAX_VALUE == distance) {
+            return null;
         }
 
-        for (int i = 1; i <= radius; i++) {
-            mapField = mapFields.get(pos - i);
-            if (mapField != null) {
-                if (checkEnemy(enemy, mapField)) {
-                    return EDirection.BKW;
-                }
-            }
-        }
-
-        return null;
+        return distance > 0 ? EDirection.FWD : EDirection.BKW;
     }
 
-    public EDirection getEnemyDirection(Obstacle enemy, int princePos) {
+    public int getEnemyDistance(Obstacle enemy, int princePos) {
         for (Entry<Integer, MapField> entry : mapFields.entrySet()) {
             if (entry.getValue() != null && entry.getValue().getGameField() != null && entry.getValue().getGameField().getObstacle() != null
                     && entry.getValue().getGameField().getObstacle().getId() == enemy.getId()) {
-                return princePos < entry.getKey() ? EDirection.FWD : EDirection.BKW;
+                return entry.getKey() - princePos;
             }
         }
-        return null;
+        return Integer.MAX_VALUE;
     }
 
     public void reset() {
         mapFields.clear();
     }
 
-    private boolean checkEnemy(EObstacle enemy, MapField mapField) {
-        return mapField != null && enemy.equalsTo(mapField.getGameField().getObstacle()) && Utils.isAliveEnemy(mapField.getGameField().getObstacle());
-    }
-
-    private boolean checkEnemy(MapField mapField) {
+    private boolean isDeadly(MapField mapField) {
         return mapField != null && Utils.isAliveEnemy(mapField.getGameField().getObstacle());
     }
 
