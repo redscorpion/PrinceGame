@@ -2,11 +2,14 @@ package com.mycompany.princeextreme;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import cz.tieto.princegame.common.gameobject.Field;
 import cz.tieto.princegame.common.gameobject.Prince;
 
 public class LevelMap implements Cloneable {
+
+    private static final Logger Log = Logger.getLogger(LevelMap.class.getName());
 
     private Map<Integer, MapField> mapFields = new HashMap<Integer, MapField>();
 
@@ -88,7 +91,7 @@ public class LevelMap implements Cloneable {
             Field oldGameField = mapField.getGameField();
             if (oldGameField != null && Utils.isEnemy(oldGameField.getObstacle()) && Utils.isAlive(oldGameField.getObstacle())) {
                 if (gameField != null && Utils.isEnemy(gameField.getObstacle()) && !Utils.isAlive(gameField.getObstacle())) {
-                    System.out.println("-- " + oldGameField.getObstacle().getName() + " is now dead");
+                    Log.fine("-- " + oldGameField.getObstacle().getName() + " is now dead");
                     int attackRange = Utils.getAttackRange(oldGameField.getObstacle());
                     for (int i = 1; i <= attackRange; i++) {
                         MapField f = mapFields.get(pos + i);

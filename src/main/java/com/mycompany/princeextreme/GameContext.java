@@ -4,6 +4,7 @@ import static com.mycompany.princeextreme.EDirection.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 
@@ -11,6 +12,8 @@ import cz.tieto.princegame.common.action.Heal;
 import cz.tieto.princegame.common.gameobject.Prince;
 
 public class GameContext implements Cloneable {
+
+    private static final Logger Log = Logger.getLogger(GameContext.class.getName());
 
     public static final int MIN_HEALTH = 5;
 
@@ -113,7 +116,7 @@ public class GameContext implements Cloneable {
             }
             int damage = expectedHealth - prince.getHealth();
             levelMap.updateFieldDamage(getPlayerPos(), damage);
-            System.out.println("-- curr pos damage: " + damage);
+            Log.fine("-- damage : " + damage);
         }
     }
 

@@ -2,6 +2,12 @@ package com.mycompany.princeextreme;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import com.mycompany.princeextreme.actionstrategies.AttackEnemyStrategy;
 import com.mycompany.princeextreme.actionstrategies.ChopperStrategy;
@@ -17,6 +23,8 @@ import cz.tieto.princegame.common.gameobject.Prince;
 
 public class PersiaStrategy implements GameStrategy {
 
+    private static final Logger Log = Logger.getLogger(PersiaStrategy.class.getName());
+
     public interface ActionStrategy {
 
         Action getAction(Prince prince, TurnStrategy context);
@@ -27,6 +35,8 @@ public class PersiaStrategy implements GameStrategy {
     public static List<ActionStrategy> retreatStrategies = new ArrayList<ActionStrategy>();
 
     static {
+        setupLogger();
+
         strategies.add(new EnterGateStrategy());
         strategies.add(new HealStrategy());
         strategies.add(new GrabEquipmentStrategy());
@@ -41,30 +51,48 @@ public class PersiaStrategy implements GameStrategy {
         retreatStrategies.add(new SimpleMoveStrategy());
     }
 
+    private static void setupLogger() {
+        Logger logger = Logger.getLogger(PersiaStrategy.class.getPackage().getName());
+        logger.setLevel(Level.FINE);
+
+        Formatter consoleFormatter = new SimpleFormatter() {
+            @Override
+            public String format(LogRecord record) {
+                return record.getMessage() + System.getProperty("line.separator");
+            }
+        };
+
+        ConsoleHandler consoleHandler = new ConsoleHandler();
+        consoleHandler.setFormatter(consoleFormatter);
+        consoleHandler.setLevel(Level.FINE);
+        consoleHandler.setFilter(null);
+
+        logger.setUseParentHandlers(false);
+        logger.addHandler(consoleHandler);
+    }
+
     private int steps = 0;
 
     private com.mycompany.princeextreme.GameContext gameStrategy = new com.mycompany.princeextreme.GameContext();
 
     public Action step(Prince prince) {
-        System.out.println("STEP " + ++steps);
-        System.out.println("----");
-        System.out.println("princeHealth:" + prince.getHealth());
+        Log.info("STEP " + ++steps);
+        Log.info("---------");
+        Log.info("-- prince health: " + prince.getHealth());
 
         TurnStrategy turnStrategy = gameStrategy.newStep(prince, steps, strategies);
         Action action = turnStrategy.invokeFirst(prince, turnStrategy);
 
-        System.out.println("action:" + action.getClass().getSimpleName());
+        Log.info("-- turn action: " + action.getClass().getSimpleName());
 
         turnStrategy.setAction(action);
         gameStrategy = gameStrategy.clone(true);
         gameStrategy.getHistory().add(turnStrategy);
         Utils.updatePrincePossition(gameStrategy, action);
 
-        System.out.println("---");
-        System.out.println("");
+        Log.info("---");
 
         return action;
     }
-
 
 }
