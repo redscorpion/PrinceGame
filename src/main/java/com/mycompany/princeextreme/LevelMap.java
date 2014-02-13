@@ -15,48 +15,28 @@ public class LevelMap implements Cloneable {
         final Field nextField = player.look(1);
         final Field prevField = player.look(-1);
 
-        MapField mapField = mapFields.get(pos);
-        MapField nextMapField = mapFields.get(pos + 1);
-        MapField prevMapField = mapFields.get(pos - 1);
+        updateMapField(pos, field);
+        updateMapField(pos + 1, nextField);
+        updateMapField(pos - 1, prevField);
+    }
 
-        if (field != null && mapField == null) {
-            mapField = new MapField();
-        }
-
-        if (nextField != null && nextMapField == null) {
-            nextMapField = new MapField();
-        }
-
-        if (prevField != null && prevMapField == null) {
-            prevMapField = new MapField();
-        }
-
+    public void updateFieldDamage(int playerPos, int damage) {
+        MapField mapField = mapFields.get(playerPos);
         if (mapField != null) {
-            mapField.setNext(nextMapField);
-            mapField.setPrevious(prevMapField);
-            mapField.setGameField(field);
-            mapFields.put(pos, mapField);
+            mapField.setDamage(damage);
         }
+    }
 
-        if (nextMapField != null) {
-            nextMapField.setPrevious(mapField);
-            nextMapField.setGameField(nextField);
-            mapFields.put(pos + 1, nextMapField);
+    public Integer getDamageAt(int playerPos) {
+        MapField mapField = mapFields.get(playerPos);
+        if (mapField != null) {
+            return mapField.getDamage();
         }
-
-        if (prevMapField != null) {
-            prevMapField.setNext(mapField);
-            prevMapField.setGameField(prevField);
-            mapFields.put(pos - 1, prevMapField);
-        }
+        return null;
     }
 
     public MapField getMapField(int pos) {
         return mapFields.get(pos);
-    }
-
-    public void reset() {
-        mapFields.clear();
     }
 
     public boolean isEnemyNear(EObstacle enemy, int pos, int radius) {
@@ -88,8 +68,25 @@ public class LevelMap implements Cloneable {
         return null;
     }
 
+    public void reset() {
+        mapFields.clear();
+    }
+
     private boolean checkEnemy(EObstacle enemy, MapField mapField) {
         return mapField != null && enemy.equalsTo(mapField.getGameField().getObstacle()) && Utils.isAlive(mapField.getGameField().getObstacle());
+    }
+
+    private void updateMapField(int pos, Field gameField) {
+        MapField mapField = mapFields.get(pos);
+
+        if (gameField != null && mapField == null) {
+            mapField = new MapField();
+            mapFields.put(pos, mapField);
+        }
+
+        if (mapField != null) {
+            mapField.setGameField(gameField);
+        }
     }
 
     @Override
@@ -105,25 +102,8 @@ public class LevelMap implements Cloneable {
     }
 
     public static class MapField {
-        private MapField prev;
-        private MapField next;
         private Field gameField;
-
-        public MapField getPrevious() {
-            return prev;
-        }
-
-        private void setPrevious(MapField prev) {
-            this.prev = prev;
-        }
-
-        public MapField getNext() {
-            return next;
-        }
-
-        private void setNext(MapField next) {
-            this.next = next;
-        }
+        private Integer damage;
 
         public Field getGameField() {
             return gameField;
@@ -133,6 +113,12 @@ public class LevelMap implements Cloneable {
             this.gameField = gameField;
         }
 
-    }
+        public Integer getDamage() {
+            return damage;
+        }
 
+        public void setDamage(Integer damage) {
+            this.damage = damage;
+        }
+    }
 }

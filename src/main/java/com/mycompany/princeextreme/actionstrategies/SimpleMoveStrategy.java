@@ -15,7 +15,7 @@ public class SimpleMoveStrategy implements ActionStrategy {
 
         if (next == null) {
             turnStrategy.setStepDirection(turnStrategy.getStepDirection().opposite());
-            turnStrategy.getGameStrategy().setDirection(turnStrategy.getStepDirection());
+            turnStrategy.getGame().setDirection(turnStrategy.getStepDirection());
             return turnStrategy.invokeFirst(prince, turnStrategy);
         }
 

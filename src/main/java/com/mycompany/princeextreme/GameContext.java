@@ -7,13 +7,14 @@ import java.util.List;
 
 import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 
+import cz.tieto.princegame.common.action.Heal;
 import cz.tieto.princegame.common.gameobject.Prince;
 
-public class GameStrategy implements Cloneable {
+public class GameContext implements Cloneable {
 
     public static final int MIN_HEALTH = 5;
 
-    private EDirection direction = FWD;
+    private EDirection direction = BKW;
 
     private LevelMap levelMap = new LevelMap();
 
@@ -66,15 +67,29 @@ public class GameStrategy implements Cloneable {
 
     private void updateLevelMap(Prince prince) {
         levelMap.updateLevelMap(getPlayerPos(), prince);
+        updateFieldDamage(prince);
+    }
+
+    private void updateFieldDamage(Prince prince) {
+        if (!getHistory().isEmpty()) {
+            TurnStrategy lastStrategy = getHistory().get(getHistory().size() - 1);
+            int expectedHealth = lastStrategy.getPrince().getHealth();
+            if (lastStrategy.getAction() instanceof Heal && lastStrategy.getPrince().getHealth() < lastStrategy.getPrince().getMaxHealth()) {
+                expectedHealth++;
+            }
+            int damage = expectedHealth - prince.getHealth();
+            levelMap.updateFieldDamage(getPlayerPos(), damage);
+            System.out.println("-- curr pos damage: " + damage);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected GameStrategy clone() {
+    public GameContext clone() {
         try {
-            GameStrategy clone = (GameStrategy) super.clone();
+            GameContext clone = (GameContext) super.clone();
             clone.history = new ArrayList<TurnStrategy>(history);
             clone.levelMap = levelMap.clone();
             return clone;

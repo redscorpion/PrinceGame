@@ -22,15 +22,15 @@ public class TurnStrategy {
     private final Prince prince;
     private final Field field;
     private final List<ActionStrategy> strategies;
-    private final GameStrategy gameStrategy;
+    private final GameContext gameContext;
 
     private EDirection stepDirection;
     private Iterator<ActionStrategy> currentStrategy;
     private Action action;
 
-    public TurnStrategy(Prince prince, GameStrategy gameStrategy, List<ActionStrategy> strategies) {
+    public TurnStrategy(Prince prince, GameContext gameStrategy, List<ActionStrategy> strategies) {
         this.prince = prince;
-        this.gameStrategy = gameStrategy;
+        this.gameContext = gameStrategy;
         this.stepDirection = gameStrategy.getDirection();
         this.strategies = strategies;
         this.currentStrategy = strategies.iterator();
@@ -53,8 +53,8 @@ public class TurnStrategy {
         this.stepDirection = direction;
     }
 
-    public GameStrategy getGameStrategy() {
-        return gameStrategy;
+    public GameContext getGame() {
+        return gameContext;
     }
 
     public Field getNextStepField(Prince prince) {
@@ -90,10 +90,8 @@ public class TurnStrategy {
     public Action move() {
         switch (stepDirection) {
         case FWD:
-            getGameStrategy().setPlayerPos(getGameStrategy().getPlayerPos() + 1);
             return new MoveForward();
         case BKW:
-            getGameStrategy().setPlayerPos(getGameStrategy().getPlayerPos() - 1);
             return new MoveBackward();
         default:
             throw new IllegalStateException();
@@ -103,15 +101,13 @@ public class TurnStrategy {
     public Action jump(boolean shouldBeSafe) {
         switch (stepDirection) {
         case FWD:
-            getGameStrategy().setPlayerPos(getGameStrategy().getPlayerPos() + 2);
-            if (!shouldBeSafe && getGameStrategy().getLevelMap().getMapField(getGameStrategy().getPlayerPos()) == null) {
-                getGameStrategy().resetLevelMap();
+            if (!shouldBeSafe && getGame().getLevelMap().getMapField(getGame().getPlayerPos()) == null) {
+                getGame().resetLevelMap();
             }
             return new JumpForward();
         case BKW:
-            getGameStrategy().setPlayerPos(getGameStrategy().getPlayerPos() - 2);
-            if (!shouldBeSafe && getGameStrategy().getLevelMap().getMapField(getGameStrategy().getPlayerPos()) == null) {
-                getGameStrategy().resetLevelMap();
+            if (!shouldBeSafe && getGame().getLevelMap().getMapField(getGame().getPlayerPos()) == null) {
+                getGame().resetLevelMap();
             }
             return new JumpBackward();
         default:
@@ -137,6 +133,10 @@ public class TurnStrategy {
 
     public Action getAction() {
         return action;
+    }
+
+    public List<ActionStrategy> getStrategies() {
+        return strategies;
     }
 
 }

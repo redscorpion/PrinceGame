@@ -2,6 +2,11 @@ package com.mycompany.princeextreme;
 
 import com.mycompany.princeextreme.LevelMap.MapField;
 
+import cz.tieto.princegame.common.action.Action;
+import cz.tieto.princegame.common.action.JumpBackward;
+import cz.tieto.princegame.common.action.JumpForward;
+import cz.tieto.princegame.common.action.MoveBackward;
+import cz.tieto.princegame.common.action.MoveForward;
 import cz.tieto.princegame.common.gameobject.Equipment;
 import cz.tieto.princegame.common.gameobject.Obstacle;
 import cz.tieto.princegame.common.gameobject.Prince;
@@ -50,13 +55,17 @@ public class Utils {
     }
 
     public static boolean isSafeToMoveFast(TurnStrategy turnStrategy, int jumpLength) {
-        int playerPos = turnStrategy.getGameStrategy().getPlayerPos();
-        LevelMap levelMap = turnStrategy.getGameStrategy().getLevelMap();
+        return isSafeToMoveFast(turnStrategy.getGame(), turnStrategy.getStepDirection(), jumpLength);
+    }
 
-        int direction = (EDirection.FWD == turnStrategy.getStepDirection()) ? 1 : -1;
+    public static boolean isSafeToMoveFast(GameContext game, EDirection direction, int jumpLength) {
+        int playerPos = game.getPlayerPos();
+        LevelMap levelMap = game.getLevelMap();
+
+        int dir = (EDirection.FWD == direction) ? 1 : -1;
 
         for (int i = 1; i <= jumpLength; i++) {
-            MapField mapField = levelMap.getMapField(playerPos + i * direction);
+            MapField mapField = levelMap.getMapField(playerPos + i * dir);
             if (mapField == null || mapField.getGameField().getEquipment() != null) {
                 return false;
             }
@@ -80,7 +89,7 @@ public class Utils {
     }
 
     public static boolean isSafeToHealHere(TurnStrategy turnStrategy) {
-        GameStrategy gameStrategy = turnStrategy.getGameStrategy();
+        GameContext gameStrategy = turnStrategy.getGame();
 
         EObstacle[] values = EObstacle.values();
         for (EObstacle eObstacle : values) {
@@ -91,11 +100,12 @@ public class Utils {
             }
         }
 
-        return true;
+        Integer damage = gameStrategy.getLevelMap().getDamageAt(gameStrategy.getPlayerPos());
+        return damage == null || damage <= 0;
     }
 
     public static EDirection geEnemyDirection(TurnStrategy turnStrategy) {
-        GameStrategy gameStrategy = turnStrategy.getGameStrategy();
+        GameContext gameStrategy = turnStrategy.getGame();
 
         EObstacle[] values = EObstacle.values();
         for (EObstacle eObstacle : values) {
@@ -108,6 +118,18 @@ public class Utils {
         }
 
         return null;
+    }
+
+    public static void updatePrincePossition(GameContext game, Action action) {
+        if (action instanceof JumpForward) {
+            game.setPlayerPos(game.getPlayerPos() + 2);
+        } else if (action instanceof JumpBackward) {
+            game.setPlayerPos(game.getPlayerPos() - 2);
+        } else if (action instanceof MoveForward) {
+            game.setPlayerPos(game.getPlayerPos() + 1);
+        } else if (action instanceof MoveBackward) {
+            game.setPlayerPos(game.getPlayerPos() - 1);
+        }
     }
 
 }

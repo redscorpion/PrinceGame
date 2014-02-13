@@ -13,10 +13,6 @@ import cz.tieto.princegame.common.gameobject.Prince;
 public class AttackEnemyStrategy implements ActionStrategy {
 
     public Action getAction(Prince prince, TurnStrategy turnStrategy) {
-        if (turnStrategy.getGameStrategy().isRetreat()) {
-            return turnStrategy.invokeNext(prince, turnStrategy);
-        }
-
         Field next = turnStrategy.getNextStepField(prince);
         if (next != null) {
             Obstacle obstacle = next.getObstacle();
@@ -28,7 +24,7 @@ public class AttackEnemyStrategy implements ActionStrategy {
                 if (weapon == null) {
                     System.out.println("-- switch direction and find weapon");
                     turnStrategy.setStepDirection(turnStrategy.getStepDirection().opposite());
-                    turnStrategy.getGameStrategy().setDirection(turnStrategy.getStepDirection());
+                    turnStrategy.getGame().setDirection(turnStrategy.getStepDirection());
                     return turnStrategy.invokeNext(prince, turnStrategy);
                 }
 
