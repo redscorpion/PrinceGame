@@ -110,15 +110,15 @@ public class PersiaStrategyTest {
 
     @Test
     public void test() {
-        testField.setPrinceHealth(5);
+        testField.setPrinceHealth(20);
         testField.setPrinceMaxHealth(10);
         testField.setPos(3);
-        testField.setGatePos(7);
-        testField.setLength(8);
-        testField.addObstacle(4, new Chopper());
-        testField.addObstacle(6, new Knight(20));
-        testField.addEquipment(1, new Sword());
-        testField.addObstacle(2, new Knight(20));
+        testField.setGatePos(8);
+        testField.setLength(9);
+        testField.addObstacle(7, new Chopper());
+        testField.addObstacle(4, new Knight(10));
+        testField.addEquipment(3, new Sword());
+        testField.addObstacle(2, new Knight(10));
 
         PersiaStrategy strategy = new PersiaStrategy();
 
@@ -327,7 +327,6 @@ public class PersiaStrategyTest {
                 KillableObstacle knight = ((KillableObstacle) prev.getObstacle());
                 if (knight.getHealth() > 0) {
                     princeHealth -= Utils.getAttack(prev.getObstacle(), 1);
-
                 }
             }
             TestField next = getLookAt(1);

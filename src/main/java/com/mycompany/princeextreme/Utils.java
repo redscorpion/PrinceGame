@@ -5,6 +5,7 @@ import java.util.List;
 import com.mycompany.princeextreme.LevelMap.MapField;
 
 import cz.tieto.princegame.common.action.Action;
+import cz.tieto.princegame.common.action.Heal;
 import cz.tieto.princegame.common.action.JumpBackward;
 import cz.tieto.princegame.common.action.JumpForward;
 import cz.tieto.princegame.common.action.MoveBackward;
@@ -212,6 +213,10 @@ public class Utils {
 
     private static int getRetreatPossition(TurnStrategy retreatResult, int currPlayerPos) {
         return Utils.getNewPrincePossition(retreatResult.getGame().getPricePos(), retreatResult.getGame().getAction());
+    }
+
+    public static boolean isHeal(Action bestRetreatAction) {
+        return bestRetreatAction != null && (bestRetreatAction instanceof Heal);
     }
 
 }

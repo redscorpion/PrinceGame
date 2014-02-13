@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 
 import cz.tieto.princegame.common.action.Action;
-import cz.tieto.princegame.common.action.Heal;
 import cz.tieto.princegame.common.gameobject.Prince;
 
 public class Game implements Cloneable {
@@ -126,7 +125,7 @@ public class Game implements Cloneable {
         TurnStrategy lastStrategy = getHistory().lastElement();
         if (lastStrategy != null) {
             int expectedHealth = lastStrategy.getPrince().getHealth();
-            if (lastStrategy.getGame().getAction() instanceof Heal && lastStrategy.getPrince().getHealth() < lastStrategy.getPrince().getMaxHealth()) {
+            if (Utils.isHeal(lastStrategy.getGame().getAction()) && lastStrategy.getPrince().getHealth() < lastStrategy.getPrince().getMaxHealth()) {
                 expectedHealth++;
             }
             int damage = expectedHealth - prince.getHealth();

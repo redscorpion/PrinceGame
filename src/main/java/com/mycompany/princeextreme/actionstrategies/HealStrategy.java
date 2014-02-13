@@ -3,7 +3,6 @@ package com.mycompany.princeextreme.actionstrategies;
 import java.util.logging.Logger;
 
 import com.mycompany.princeextreme.EDirection;
-import com.mycompany.princeextreme.Game;
 import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 import com.mycompany.princeextreme.TurnStrategy;
 import com.mycompany.princeextreme.Utils;
@@ -46,7 +45,11 @@ public class HealStrategy implements ActionStrategy {
                     }
                 }
                 beginRetreat(turnStrategy, enemyDirection.opposite());
-                return Utils.getBestRetreatAction(turnStrategy, enemyDirection.opposite());
+                Action bestRetreatAction = Utils.getBestRetreatAction(turnStrategy, enemyDirection.opposite());
+                if (Utils.isHeal(bestRetreatAction)) {
+                    Log.fine("-- need to heal!");
+                }
+                return bestRetreatAction;
             }
         }
 
@@ -85,7 +88,6 @@ public class HealStrategy implements ActionStrategy {
             }
         }
 
-        return prince.getHealth() < Math.min(prince.getMaxHealth() / 2, Game.MIN_HEALTH);
+        return prince.getHealth() < prince.getMaxHealth() / 2;
     }
-
 }
