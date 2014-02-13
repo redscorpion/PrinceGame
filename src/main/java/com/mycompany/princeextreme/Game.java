@@ -2,7 +2,6 @@ package com.mycompany.princeextreme;
 
 import static com.mycompany.princeextreme.EDirection.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -11,9 +10,9 @@ import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
 import cz.tieto.princegame.common.action.Heal;
 import cz.tieto.princegame.common.gameobject.Prince;
 
-public class GameContext implements Cloneable {
+public class Game implements Cloneable {
 
-    private static final Logger Log = Logger.getLogger(GameContext.class.getName());
+    private static final Logger Log = Logger.getLogger(Game.class.getName());
 
     public static final int MIN_HEALTH = 5;
 
@@ -21,19 +20,23 @@ public class GameContext implements Cloneable {
 
     private LevelMap levelMap = new LevelMap();
 
-    private List<TurnStrategy> history = new ArrayList<TurnStrategy>();
+    private GameHistory history = new GameHistory();
 
     private int playerPos = 0;
 
     private int stepNumber = 0;
 
-    private boolean retreat = false;
+    private boolean retreat;
 
-    private boolean turnBack = false;
+    private boolean turnBack;
 
-    private boolean allowJumping = true;
+    private boolean allowJumping;
 
-    private void clearFlags() {
+    public Game() {
+        initFlags();
+    }
+
+    private void initFlags() {
         retreat = false;
         turnBack = false;
         allowJumping = true;
@@ -43,11 +46,11 @@ public class GameContext implements Cloneable {
         return this.direction;
     }
 
-    public void setDirection(EDirection direction) {
+    public void setStepDirection(EDirection direction) {
         this.direction = direction;
     }
 
-    public List<TurnStrategy> getHistory() {
+    public GameHistory getHistory() {
         return history;
     }
 
@@ -59,7 +62,7 @@ public class GameContext implements Cloneable {
         return levelMap;
     }
 
-    public int getPlayerPos() {
+    public int getPricePos() {
         return playerPos;
     }
 
@@ -103,19 +106,19 @@ public class GameContext implements Cloneable {
     }
 
     private void updateLevelMap(Prince prince) {
-        levelMap.updateLevelMap(getPlayerPos(), prince);
+        levelMap.updateLevelMap(getPricePos(), prince);
         updateFieldDamage(prince);
     }
 
     private void updateFieldDamage(Prince prince) {
-        if (!getHistory().isEmpty()) {
-            TurnStrategy lastStrategy = getHistory().get(getHistory().size() - 1);
+        TurnStrategy lastStrategy = getHistory().lastElement();
+        if (lastStrategy != null) {
             int expectedHealth = lastStrategy.getPrince().getHealth();
             if (lastStrategy.getAction() instanceof Heal && lastStrategy.getPrince().getHealth() < lastStrategy.getPrince().getMaxHealth()) {
                 expectedHealth++;
             }
             int damage = expectedHealth - prince.getHealth();
-            levelMap.updateFieldDamage(getPlayerPos(), damage);
+            levelMap.updateFieldDamage(getPricePos(), damage);
             Log.fine("-- damage : " + damage);
         }
     }
@@ -125,13 +128,13 @@ public class GameContext implements Cloneable {
         return clone(false);
     }
 
-    public GameContext clone(boolean clearFlags) {
+    public Game clone(boolean clearFlags) {
         try {
-            GameContext clone = (GameContext) super.clone();
-            clone.history = new ArrayList<TurnStrategy>(history);
+            Game clone = (Game) super.clone();
+            clone.history = new GameHistory(history);
             clone.levelMap = levelMap.clone();
             if (clearFlags) {
-                clone.clearFlags();
+                clone.initFlags();
             }
             return clone;
         } catch (CloneNotSupportedException e) {

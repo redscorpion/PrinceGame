@@ -73,7 +73,7 @@ public class PersiaStrategy implements GameStrategy {
 
     private int steps = 0;
 
-    private com.mycompany.princeextreme.GameContext gameStrategy = new com.mycompany.princeextreme.GameContext();
+    private com.mycompany.princeextreme.Game gameStrategy = new com.mycompany.princeextreme.Game();
 
     public Action step(Prince prince) {
         Log.info("STEP " + ++steps);

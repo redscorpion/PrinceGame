@@ -21,14 +21,14 @@ public class AttackEnemyStrategy implements ActionStrategy {
         if (next != null) {
             Obstacle obstacle = next.getObstacle();
 
-            if (Utils.isEnemy(obstacle) && Utils.isAlive(obstacle)) {
+            if (Utils.isAliveEnemy(obstacle)) {
                 Log.fine("-- enemy: " + obstacle.getName() + " health:" + Utils.getHealth(obstacle));
-                Equipment weapon = Utils.getWeapon(prince, obstacle);
+                Equipment weapon = Utils.getBestWeapon(prince, obstacle);
                 Log.fine("-- weapon: " + (weapon != null ? weapon.getName() : "null"));
                 if (weapon == null) {
                     Log.fine("-- switch direction and find weapon");
-                    turnStrategy.setStepDirection(turnStrategy.getStepDirection().opposite());
-                    turnStrategy.getGame().setDirection(turnStrategy.getStepDirection());
+                    turnStrategy.switchStepDirection();
+                    turnStrategy.getGame().setStepDirection(turnStrategy.getStepDirection());
                     return turnStrategy.invokeNext(prince, turnStrategy);
                 }
 

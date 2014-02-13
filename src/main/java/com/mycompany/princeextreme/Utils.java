@@ -17,6 +17,14 @@ public class Utils {
         return obstacle != null && !Boolean.parseBoolean(obstacle.getProperty("dead"));
     }
 
+    public static boolean isAliveEnemy(Obstacle obstacle) {
+        return obstacle != null && isEnemy(obstacle) && isAlive(obstacle);
+    }
+
+    public static boolean isDeadEnemy(Obstacle obstacle) {
+        return obstacle != null && isEnemy(obstacle) && !isAlive(obstacle);
+    }
+
     public static int getHealth(Obstacle obstacle) {
         return obstacle != null ? Integer.parseInt(obstacle.getProperty("health")) : 0;
     }
@@ -58,7 +66,7 @@ public class Utils {
         return weapon != null ? weapon.getAttack() : 0;
     }
 
-    public static Equipment getWeapon(Prince prince, Obstacle obstacle) {
+    public static Equipment getBestWeapon(Prince prince, Obstacle obstacle) {
         return getEquipment(prince, EEquipment.SWORD);
     }
 
@@ -66,8 +74,8 @@ public class Utils {
         return isSafeToMoveFast(turnStrategy.getGame(), turnStrategy.getStepDirection(), jumpLength);
     }
 
-    public static boolean isSafeToMoveFast(GameContext game, EDirection direction, int jumpLength) {
-        int playerPos = game.getPlayerPos();
+    public static boolean isSafeToMoveFast(Game game, EDirection direction, int jumpLength) {
+        int playerPos = game.getPricePos();
         LevelMap levelMap = game.getLevelMap();
 
         int dir = (EDirection.FWD == direction) ? 1 : -1;
@@ -97,28 +105,28 @@ public class Utils {
     }
 
     public static boolean isSafeToHealHere(TurnStrategy turnStrategy) {
-        GameContext gameStrategy = turnStrategy.getGame();
+        Game gameStrategy = turnStrategy.getGame();
 
         EObstacle[] values = EObstacle.values();
         for (EObstacle eObstacle : values) {
             if (isEnemy(eObstacle)) {
-                if (gameStrategy.getLevelMap().isEnemyNear(eObstacle, gameStrategy.getPlayerPos(), eObstacle.getAttackRange())) {
+                if (gameStrategy.getLevelMap().isEnemyNear(eObstacle, gameStrategy.getPricePos(), eObstacle.getAttackRange())) {
                     return false;
                 }
             }
         }
 
-        Integer damage = gameStrategy.getLevelMap().getDamageAt(gameStrategy.getPlayerPos());
+        Integer damage = gameStrategy.getLevelMap().getDamageAt(gameStrategy.getPricePos());
         return damage == null || damage <= 0;
     }
 
     public static EDirection geEnemyDirection(TurnStrategy turnStrategy) {
-        GameContext gameStrategy = turnStrategy.getGame();
+        Game gameStrategy = turnStrategy.getGame();
 
         EObstacle[] values = EObstacle.values();
         for (EObstacle eObstacle : values) {
             if (isEnemy(eObstacle)) {
-                EDirection enemyDirection = gameStrategy.getLevelMap().getEnemyDirection(eObstacle, gameStrategy.getPlayerPos(), eObstacle.getAttackRange());
+                EDirection enemyDirection = gameStrategy.getLevelMap().getEnemyDirection(eObstacle, gameStrategy.getPricePos(), eObstacle.getAttackRange());
                 if (enemyDirection != null) {
                     return enemyDirection;
                 }
@@ -128,8 +136,8 @@ public class Utils {
         return null;
     }
 
-    public static void updatePrincePossition(GameContext game, Action action) {
-        game.setPlayerPos(getNewPrincePossition(game.getPlayerPos(), action));
+    public static void updatePrincePossition(Game game, Action action) {
+        game.setPlayerPos(getNewPrincePossition(game.getPricePos(), action));
     }
 
     public static int getNewPrincePossition(int currentPossition, Action action) {
@@ -144,5 +152,55 @@ public class Utils {
             newPossition -= 1;
         }
         return newPossition;
+    }
+
+    public static Integer getSmallestRetreatDamage(TurnStrategy turnStrategy, EDirection retreatDirection) {
+        TurnStrategy retreatResult = getBestRetreatResult(turnStrategy, retreatDirection);
+        int retreatPos = getRetreatPossition(retreatResult, retreatResult.getGame().getPricePos());
+        return retreatResult.getGame().getLevelMap().getDamageAt(retreatPos);
+    }
+
+    public static Action getBestRetreatAction(TurnStrategy turnStrategy, EDirection retreatDirection) {
+        return getBestRetreatResult(turnStrategy, retreatDirection).getAction();
+    }
+
+    private static TurnStrategy getBestRetreatResult(TurnStrategy turnStrategy, EDirection retreatDirection) {
+
+        TurnStrategy retreatResultWithoutJumping = getRetreatResult(turnStrategy, retreatDirection, false);
+        int retreatPosWithoutJumping = getRetreatPossition(retreatResultWithoutJumping, retreatResultWithoutJumping.getGame().getPricePos());
+        Integer damageWithoutJumping = retreatResultWithoutJumping.getGame().getLevelMap().getDamageAt(retreatPosWithoutJumping);
+
+        if (damageWithoutJumping != null && damageWithoutJumping == 0) {
+            return retreatResultWithoutJumping;
+        }
+
+        TurnStrategy retreatResultWithJumping = getRetreatResult(turnStrategy, retreatDirection, true);
+        int retreatPosWithJumping = getRetreatPossition(retreatResultWithJumping, retreatResultWithJumping.getGame().getPricePos());
+        Integer damageWithJumping = retreatResultWithJumping.getGame().getLevelMap().getDamageAt(retreatPosWithJumping);
+
+        if (damageWithJumping == null) {
+            return retreatResultWithoutJumping;
+        }
+
+        if (damageWithoutJumping == null) {
+            return retreatResultWithJumping;
+        }
+
+        return damageWithoutJumping < damageWithJumping ? retreatResultWithoutJumping : retreatResultWithJumping;
+    }
+
+    private static TurnStrategy getRetreatResult(TurnStrategy turnStrategy, EDirection retreatDirection, boolean allowJumping) {
+        Game retreatContext = turnStrategy.getGame().clone(true);
+        retreatContext.setRetreat(true);
+        retreatContext.setAllowJumping(allowJumping);
+        TurnStrategy retreatStrategy = new TurnStrategy(turnStrategy.getPrince(), retreatContext, PersiaStrategy.retreatStrategies);
+        retreatStrategy.setStepDirection(retreatDirection);
+        Action retreatAction = retreatStrategy.invokeNext(retreatStrategy.getPrince(), retreatStrategy);
+        retreatStrategy.setAction(retreatAction);
+        return retreatStrategy;
+    }
+
+    private static int getRetreatPossition(TurnStrategy retreatResult, int currPlayerPos) {
+        return Utils.getNewPrincePossition(retreatResult.getGame().getPricePos(), retreatResult.getAction());
     }
 }

@@ -17,16 +17,16 @@ public class SimpleMoveStrategy implements ActionStrategy {
     public Action getAction(Prince prince, TurnStrategy turnStrategy) {
         Field next = turnStrategy.getNextStepField(prince);
 
-        if (next == null || (Utils.isEnemy(next.getObstacle()) && Utils.isAlive(next.getObstacle()))) {
+        if (next == null || Utils.isAliveEnemy(next.getObstacle())) {
             // avoid endless cycle
             if (turnStrategy.getGame().isTurnBack()) {
                 Log.fine("-- can't move");
                 return turnStrategy.heal();
             }
-            Log.fine("-- wall, turn back");
+            Log.fine("-- wall or enemy, turn back");
             turnStrategy.getGame().setTurnBack(true);
             turnStrategy.setStepDirection(turnStrategy.getStepDirection().opposite());
-            turnStrategy.getGame().setDirection(turnStrategy.getStepDirection());
+            turnStrategy.getGame().setStepDirection(turnStrategy.getStepDirection());
             return turnStrategy.invokeFirst(prince, turnStrategy);
         }
 

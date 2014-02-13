@@ -22,13 +22,13 @@ public class TurnStrategy {
     private final Prince prince;
     private final Field field;
     private final List<ActionStrategy> strategies;
-    private final GameContext game;
+    private final Game game;
 
     private EDirection stepDirection;
     private Iterator<ActionStrategy> currentStrategy;
     private Action action;
 
-    public TurnStrategy(Prince prince, GameContext game, List<ActionStrategy> strategies) {
+    public TurnStrategy(Prince prince, Game game, List<ActionStrategy> strategies) {
         this.prince = prince;
         this.game = game;
         this.stepDirection = game.getDirection();
@@ -53,7 +53,7 @@ public class TurnStrategy {
         this.stepDirection = direction;
     }
 
-    public GameContext getGame() {
+    public Game getGame() {
         return game;
     }
 
@@ -101,12 +101,12 @@ public class TurnStrategy {
     public Action jump(boolean shouldBeSafe) {
         switch (stepDirection) {
         case FWD:
-            if (!shouldBeSafe && getGame().getLevelMap().getMapField(getGame().getPlayerPos()) == null) {
+            if (!shouldBeSafe && getGame().getLevelMap().getMapField(getGame().getPricePos()) == null) {
                 getGame().resetLevelMap();
             }
             return new JumpForward();
         case BKW:
-            if (!shouldBeSafe && getGame().getLevelMap().getMapField(getGame().getPlayerPos()) == null) {
+            if (!shouldBeSafe && getGame().getLevelMap().getMapField(getGame().getPricePos()) == null) {
                 getGame().resetLevelMap();
             }
             return new JumpBackward();
@@ -137,6 +137,10 @@ public class TurnStrategy {
 
     public List<ActionStrategy> getStrategies() {
         return strategies;
+    }
+
+    public void switchStepDirection() {
+        setStepDirection(getStepDirection().opposite());
     }
 
 }
