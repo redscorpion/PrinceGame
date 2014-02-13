@@ -56,7 +56,7 @@ public class PersiaStrategy implements GameStrategy {
         System.out.println("action:" + action.getClass().getSimpleName());
 
         turnStrategy.setAction(action);
-        gameStrategy = gameStrategy.clone();
+        gameStrategy = gameStrategy.clone(true);
         gameStrategy.getHistory().add(turnStrategy);
         Utils.updatePrincePossition(gameStrategy, action);
 

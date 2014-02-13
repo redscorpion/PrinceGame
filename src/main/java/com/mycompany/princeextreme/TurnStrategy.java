@@ -22,16 +22,16 @@ public class TurnStrategy {
     private final Prince prince;
     private final Field field;
     private final List<ActionStrategy> strategies;
-    private final GameContext gameContext;
+    private final GameContext game;
 
     private EDirection stepDirection;
     private Iterator<ActionStrategy> currentStrategy;
     private Action action;
 
-    public TurnStrategy(Prince prince, GameContext gameStrategy, List<ActionStrategy> strategies) {
+    public TurnStrategy(Prince prince, GameContext game, List<ActionStrategy> strategies) {
         this.prince = prince;
-        this.gameContext = gameStrategy;
-        this.stepDirection = gameStrategy.getDirection();
+        this.game = game;
+        this.stepDirection = game.getDirection();
         this.strategies = strategies;
         this.currentStrategy = strategies.iterator();
         this.field = prince.look(0);
@@ -54,7 +54,7 @@ public class TurnStrategy {
     }
 
     public GameContext getGame() {
-        return gameContext;
+        return game;
     }
 
     public Field getNextStepField(Prince prince) {

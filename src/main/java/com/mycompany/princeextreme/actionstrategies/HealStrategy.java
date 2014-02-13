@@ -47,7 +47,7 @@ public class HealStrategy implements ActionStrategy {
                     }
                 }
                 beginRetreat(turnStrategy, enemyDirection.opposite());
-                return getRetreatAction(turnStrategy, enemyDirection.opposite());
+                return getBestRetreatAction(turnStrategy, enemyDirection.opposite());
             }
         }
 
@@ -66,11 +66,11 @@ public class HealStrategy implements ActionStrategy {
                     if (lastStrategy.getGame().isRetreat()) {
                         System.out.println("-- continue retreat");
                         beginRetreat(turnStrategy, lastDirection);
-                        return getRetreatAction(turnStrategy, lastDirection);
+                        return getBestRetreatAction(turnStrategy, lastDirection);
                     } else if (shouldRetreat(prince, turnStrategy, lastDirection.opposite())) {
                         System.out.println("-- turn back");
                         beginRetreat(turnStrategy, lastDirection.opposite());
-                        return getRetreatAction(turnStrategy, lastDirection.opposite());
+                        return getBestRetreatAction(turnStrategy, lastDirection.opposite());
                     }
 
                     return turnStrategy.invokeNext(prince, turnStrategy);
@@ -100,7 +100,7 @@ public class HealStrategy implements ActionStrategy {
         if (retreatDirection != null) {
             Integer damage = turnStrategy.getGame().getLevelMap().getDamageAt(turnStrategy.getGame().getPlayerPos());
             if (damage != null) {
-                Integer retreatDamage = getRetreatDamage(turnStrategy, retreatDirection);
+                Integer retreatDamage = getSmallestRetreatDamage(turnStrategy, retreatDirection);
                 if (retreatDamage != null) {
                     return prince.getHealth() <= damage + retreatDamage;
                 }
@@ -110,19 +110,45 @@ public class HealStrategy implements ActionStrategy {
         return prince.getHealth() < Math.min(prince.getMaxHealth() / 2, GameContext.MIN_HEALTH);
     }
 
-    private Integer getRetreatDamage(TurnStrategy turnStrategy, EDirection retreatDirection) {
-        TurnStrategy retreatResult = getRetreatResult(turnStrategy, retreatDirection);
-        int retreatPos = getRetreatPossition(retreatResult, turnStrategy.getGame().getPlayerPos());
-        return turnStrategy.getGame().getLevelMap().getDamageAt(retreatPos);
+    private Integer getSmallestRetreatDamage(TurnStrategy turnStrategy, EDirection retreatDirection) {
+        TurnStrategy retreatResult = getBestRetreatResult(turnStrategy, retreatDirection);
+        int retreatPos = getRetreatPossition(retreatResult, retreatResult.getGame().getPlayerPos());
+        return retreatResult.getGame().getLevelMap().getDamageAt(retreatPos);
     }
 
-    private Action getRetreatAction(TurnStrategy turnStrategy, EDirection retreatDirection) {
-        return getRetreatResult(turnStrategy, retreatDirection).getAction();
+    private Action getBestRetreatAction(TurnStrategy turnStrategy, EDirection retreatDirection) {
+        return getBestRetreatResult(turnStrategy, retreatDirection).getAction();
     }
 
-    private TurnStrategy getRetreatResult(TurnStrategy turnStrategy, EDirection retreatDirection) {
-        GameContext retreatContext = turnStrategy.getGame().clone();
+    private TurnStrategy getBestRetreatResult(TurnStrategy turnStrategy, EDirection retreatDirection) {
+
+        TurnStrategy retreatResultWithoutJumping = getRetreatResult(turnStrategy, retreatDirection, false);
+        int retreatPosWithoutJumping = getRetreatPossition(retreatResultWithoutJumping, retreatResultWithoutJumping.getGame().getPlayerPos());
+        Integer damageWithoutJumping = retreatResultWithoutJumping.getGame().getLevelMap().getDamageAt(retreatPosWithoutJumping);
+
+        if (damageWithoutJumping == 0) {
+            return retreatResultWithoutJumping;
+        }
+
+        TurnStrategy retreatResultWithJumping = getRetreatResult(turnStrategy, retreatDirection, true);
+        int retreatPosWithJumping = getRetreatPossition(retreatResultWithJumping, retreatResultWithJumping.getGame().getPlayerPos());
+        Integer damageWithJumping = retreatResultWithJumping.getGame().getLevelMap().getDamageAt(retreatPosWithJumping);
+
+        if (damageWithJumping == null) {
+            return retreatResultWithoutJumping;
+        }
+
+        if (damageWithoutJumping == null) {
+            return retreatResultWithJumping;
+        }
+
+        return damageWithoutJumping < damageWithJumping ? retreatResultWithoutJumping : retreatResultWithJumping;
+    }
+
+    private TurnStrategy getRetreatResult(TurnStrategy turnStrategy, EDirection retreatDirection, boolean allowJumping) {
+        GameContext retreatContext = turnStrategy.getGame().clone(true);
         retreatContext.setRetreat(true);
+        retreatContext.setAllowJumping(allowJumping);
         TurnStrategy retreatStrategy = new TurnStrategy(turnStrategy.getPrince(), retreatContext, PersiaStrategy.retreatStrategies);
         retreatStrategy.setStepDirection(retreatDirection);
         Action retreatAction = retreatStrategy.invokeNext(retreatStrategy.getPrince(), retreatStrategy);
@@ -131,7 +157,6 @@ public class HealStrategy implements ActionStrategy {
     }
 
     private int getRetreatPossition(TurnStrategy retreatResult, int currPlayerPos) {
-        Utils.updatePrincePossition(retreatResult.getGame(), retreatResult.getAction());
-        return retreatResult.getGame().getPlayerPos();
+        return Utils.getNewPrincePossition(retreatResult.getGame().getPlayerPos(), retreatResult.getAction());
     }
 }

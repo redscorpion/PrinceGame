@@ -42,6 +42,14 @@ public class Utils {
         return obstacle != null ? obstacle.getAttack(distance) : 0;
     }
 
+    public static int getAttackRange(Obstacle obstacle) {
+        return getAttackRange(EObstacle.valueOf(obstacle));
+    }
+
+    public static int getAttackRange(EObstacle obstacle) {
+        return obstacle != null ? obstacle.getAttackRange() : 0;
+    }
+
     public static int getWeaponAttack(Equipment weapon) {
         return getWeaponAttack(EEquipment.valueOf(weapon));
     }
@@ -121,15 +129,20 @@ public class Utils {
     }
 
     public static void updatePrincePossition(GameContext game, Action action) {
-        if (action instanceof JumpForward) {
-            game.setPlayerPos(game.getPlayerPos() + 2);
-        } else if (action instanceof JumpBackward) {
-            game.setPlayerPos(game.getPlayerPos() - 2);
-        } else if (action instanceof MoveForward) {
-            game.setPlayerPos(game.getPlayerPos() + 1);
-        } else if (action instanceof MoveBackward) {
-            game.setPlayerPos(game.getPlayerPos() - 1);
-        }
+        game.setPlayerPos(getNewPrincePossition(game.getPlayerPos(), action));
     }
 
+    public static int getNewPrincePossition(int currentPossition, Action action) {
+        int newPossition = currentPossition;
+        if (action instanceof JumpForward) {
+            newPossition += 2;
+        } else if (action instanceof JumpBackward) {
+            newPossition -= 2;
+        } else if (action instanceof MoveForward) {
+            newPossition += 1;
+        } else if (action instanceof MoveBackward) {
+            newPossition -= 1;
+        }
+        return newPossition;
+    }
 }

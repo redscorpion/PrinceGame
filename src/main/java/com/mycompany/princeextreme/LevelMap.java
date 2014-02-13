@@ -85,6 +85,25 @@ public class LevelMap implements Cloneable {
         }
 
         if (mapField != null) {
+            Field oldGameField = mapField.getGameField();
+            if (oldGameField != null && Utils.isEnemy(oldGameField.getObstacle()) && Utils.isAlive(oldGameField.getObstacle())) {
+                if (gameField != null && Utils.isEnemy(gameField.getObstacle()) && !Utils.isAlive(gameField.getObstacle())) {
+                    System.out.println("-- " + oldGameField.getObstacle().getName() + " is now dead");
+                    int attackRange = Utils.getAttackRange(oldGameField.getObstacle());
+                    for (int i = 1; i <= attackRange; i++) {
+                        MapField f = mapFields.get(pos + i);
+                        if (f != null && f.getDamage() != null) {
+                            f.setDamage(Math.max(0, f.getDamage() - Utils.getAttack(oldGameField.getObstacle(), i)));
+                        }
+                    }
+                    for (int i = 1; i <= attackRange; i++) {
+                        MapField f = mapFields.get(pos - i);
+                        if (f != null && f.getDamage() != null) {
+                            f.setDamage(Math.max(0, f.getDamage() - Utils.getAttack(oldGameField.getObstacle(), i)));
+                        }
+                    }
+                }
+            }
             mapField.setGameField(gameField);
         }
     }

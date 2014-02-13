@@ -20,11 +20,21 @@ public class GameContext implements Cloneable {
 
     private List<TurnStrategy> history = new ArrayList<TurnStrategy>();
 
-    private int playerPos;
+    private int playerPos = 0;
 
-    private int stepNumber;
+    private int stepNumber = 0;
 
-    private boolean retreat;
+    private boolean retreat = false;
+
+    private boolean turnBack = false;
+
+    private boolean allowJumping = true;
+
+    private void clearFlags() {
+        retreat = false;
+        turnBack = false;
+        allowJumping = true;
+    }
 
     public EDirection getDirection() {
         return this.direction;
@@ -58,6 +68,30 @@ public class GameContext implements Cloneable {
         return stepNumber;
     }
 
+    public boolean isRetreat() {
+        return retreat;
+    }
+
+    public void setRetreat(boolean retreat) {
+        this.retreat = retreat;
+    }
+
+    public boolean isTurnBack() {
+        return turnBack;
+    }
+
+    public void setTurnBack(boolean turnBack) {
+        this.turnBack = turnBack;
+    }
+
+    public void setAllowJumping(boolean allowJumping) {
+        this.allowJumping = allowJumping;
+    }
+
+    public boolean isJumpingAllowed() {
+        return allowJumping;
+    }
+
     public TurnStrategy newStep(Prince prince, int stepNumber, List<ActionStrategy> strategies) {
         TurnStrategy turnStrategy = new TurnStrategy(prince, this, strategies);
         this.stepNumber = stepNumber;
@@ -83,34 +117,23 @@ public class GameContext implements Cloneable {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public GameContext clone() {
+    protected Object clone() {
+        return clone(false);
+    }
+
+    public GameContext clone(boolean clearFlags) {
         try {
             GameContext clone = (GameContext) super.clone();
             clone.history = new ArrayList<TurnStrategy>(history);
             clone.levelMap = levelMap.clone();
+            if (clearFlags) {
+                clone.clearFlags();
+            }
             return clone;
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
             return null;
         }
     }
-
-    /**
-     * @return the retreat
-     */
-    public boolean isRetreat() {
-        return retreat;
-    }
-
-    /**
-     * @param retreat the retreat to set
-     */
-    public void setRetreat(boolean retreat) {
-        this.retreat = retreat;
-    }
-
 }
