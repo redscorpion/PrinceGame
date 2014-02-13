@@ -11,50 +11,101 @@ public class LevelMap implements Cloneable {
     private Map<Integer, MapField> mapFields = new HashMap<Integer, MapField>();
 
     public void updateLevelMap(int pos, Prince player) {
-        Field field = player.look(0);
-        Field nextField = player.look(1);
-        Field prevField = player.look(-1);
+        final Field field = player.look(0);
+        final Field nextField = player.look(1);
+        final Field prevField = player.look(-1);
 
-        MapField mapField = mapFields.get(pos);
-        MapField nextMapField = mapFields.get(pos + 1);
-        MapField prevMapField = mapFields.get(pos - 1);
+        updateMapField(pos, field);
+        updateMapField(pos + 1, nextField);
+        updateMapField(pos - 1, prevField);
+    }
 
-        if (mapField == null) {
-            mapField = new MapField();
-            mapField.gameField = field;
+    public void updateFieldDamage(int playerPos, int damage) {
+        MapField mapField = mapFields.get(playerPos);
+        if (mapField != null) {
+            mapField.setDamage(damage);
         }
+    }
 
-        if (nextField != null && nextMapField == null) {
-            nextMapField = new MapField();
-            nextMapField.gameField = nextField;
+    public Integer getDamageAt(int playerPos) {
+        MapField mapField = mapFields.get(playerPos);
+        if (mapField != null) {
+            return mapField.getDamage();
         }
-
-        if (prevField != null && prevMapField == null) {
-            prevMapField = new MapField();
-            prevMapField.gameField = prevField;
-        }
-
-        mapField.next = nextMapField;
-        mapField.prev = prevMapField;
-        mapFields.put(pos, mapField);
-
-        if (nextMapField != null) {
-            nextMapField.prev = mapField;
-            mapFields.put(pos + 1, nextMapField);
-        }
-
-        if (prevMapField != null) {
-            prevMapField.next = mapField;
-            mapFields.put(pos - 1, prevMapField);
-        }
+        return null;
     }
 
     public MapField getMapField(int pos) {
         return mapFields.get(pos);
     }
 
+    public boolean isEnemyNear(EObstacle enemy, int pos, int radius) {
+        return getEnemyDirection(enemy, pos, radius) != null;
+    }
+
+    public EDirection getEnemyDirection(EObstacle enemy, int pos, int radius) {
+
+        MapField mapField;
+
+        for (int i = 0; i <= radius; i++) {
+            mapField = mapFields.get(pos + i);
+            if (mapField != null) {
+                if (checkEnemy(enemy, mapField)) {
+                    return EDirection.FWD;
+                }
+            }
+        }
+
+        for (int i = 1; i <= radius; i++) {
+            mapField = mapFields.get(pos - i);
+            if (mapField != null) {
+                if (checkEnemy(enemy, mapField)) {
+                    return EDirection.BKW;
+                }
+            }
+        }
+
+        return null;
+    }
+
     public void reset() {
         mapFields.clear();
+    }
+
+    private boolean checkEnemy(EObstacle enemy, MapField mapField) {
+        return mapField != null && enemy.equalsTo(mapField.getGameField().getObstacle()) && Utils.isAlive(mapField.getGameField().getObstacle());
+    }
+
+    private void updateMapField(int pos, Field gameField) {
+        MapField mapField = mapFields.get(pos);
+
+        if (gameField != null && mapField == null) {
+            mapField = new MapField();
+            mapFields.put(pos, mapField);
+        }
+
+        if (mapField != null) {
+            Field oldGameField = mapField.getGameField();
+            if (oldGameField != null && Utils.isEnemy(oldGameField.getObstacle()) && Utils.isAlive(oldGameField.getObstacle())) {
+                if (gameField != null && Utils.isEnemy(gameField.getObstacle()) && !Utils.isAlive(gameField.getObstacle())) {
+                    System.out.println("-- " + oldGameField.getObstacle().getName() + " is now dead");
+                    int attackRange = Utils.getAttackRange(oldGameField.getObstacle());
+                    for (int i = 1; i <= attackRange; i++) {
+                        MapField f = mapFields.get(pos + i);
+                        if (f != null && f.getDamage() != null) {
+                            f.setDamage(Math.max(0, f.getDamage() - Utils.getAttack(oldGameField.getObstacle(), i)));
+                        }
+                    }
+                    for (int i = 1; i <= attackRange; i++) {
+                        MapField f = mapFields.get(pos - i);
+                        if (f != null && f.getDamage() != null) {
+                            f.setDamage(Math.max(0, f.getDamage() - Utils.getAttack(oldGameField.getObstacle(), i)));
+                        }
+                    }
+                }
+            }
+            mapField.setGameField(gameField);
+        }
     }
 
     @Override
@@ -69,47 +120,24 @@ public class LevelMap implements Cloneable {
         }
     }
 
-    public boolean isDragonNear(int pos) {
-        boolean dragon = false;
-
-        MapField mapField;
-
-        mapField = mapFields.get(pos);
-        if (mapField != null) {
-            dragon |= checkDragon(mapField);
-        }
-        mapField = mapFields.get(pos - 1);
-        if (mapField != null) {
-            dragon |= checkDragon(mapField);
-        }
-        mapField = mapFields.get(pos - 2);
-        if (mapField != null) {
-            dragon |= checkDragon(mapField);
-        }
-        mapField = mapFields.get(pos + 1);
-        if (mapField != null) {
-            dragon |= checkDragon(mapField);
-        }
-        mapField = mapFields.get(pos + 2);
-        if (mapField != null) {
-            dragon |= checkDragon(mapField);
-        }
-
-        return dragon;
-    }
-
-    /**
-     * @param mapField
-     * @return
-     */
-    private boolean checkDragon(MapField mapField) {
-        return mapField != null && EObstacle.DRAGON.equalsTo(mapField.gameField.getObstacle()) && Utils.isAlive(mapField.gameField.getObstacle());
-    }
-
     public static class MapField {
-        public MapField prev;
-        public MapField next;
-        public Field gameField;
+        private Field gameField;
+        private Integer damage;
 
+        public Field getGameField() {
+            return gameField;
+        }
+
+        private void setGameField(Field gameField) {
+            this.gameField = gameField;
+        }
+
+        public Integer getDamage() {
+            return damage;
+        }
+
+        public void setDamage(Integer damage) {
+            this.damage = damage;
+        }
     }
 }

@@ -21,9 +21,6 @@ fitnesse/FitNesseRoot/files/testResults/*
 fitnesse/error.log
 */.metadata/**
 
-/ordermanager-component/src/main/webapp/META-INF/MANIFEST.MF
-/ordermanager-component/hs_err_pid*
-
 # IntelliJ IDEA project files
 .idea
 *.iml
@@ -32,3 +29,6 @@ fitnesse/error.log
 
 # mac
 .DS_Store
+/target
+/.settings
+

@@ -1,6 +1,3 @@
-/***************************************************************************************************
- * Copyright 2013 TeliaSonera. All rights reserved.
- **************************************************************************************************/
 package com.mycompany.princeextreme.actionstrategies;
 
 import com.mycompany.princeextreme.EObstacle;
@@ -17,10 +14,10 @@ public class ChopperStrategy implements ActionStrategy {
         Field next = turnStrategy.getNextStepField(prince);
 
         if (next != null && EObstacle.CHOPPER.equalsTo(next.getObstacle())) {
-            boolean closing = "true".equals(next.getObstacle().getProperty("closing"));
-            boolean opening = "true".equals(next.getObstacle().getProperty("opening"));
+            boolean closing = Boolean.parseBoolean(next.getObstacle().getProperty("closing"));
+            boolean opening = Boolean.parseBoolean(next.getObstacle().getProperty("opening"));
             if (closing == false && opening == true) {
-                return turnStrategy.jump();
+                return turnStrategy.jump(true);
             } else {
                 return turnStrategy.heal();
             }

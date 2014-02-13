@@ -1,13 +1,7 @@
-/** *************************************************************************************************
- * Copyright 2013 TeliaSonera. All rights reserved.
- ************************************************************************************************* */
 package com.mycompany.princeextreme;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.mycompany.princeextreme.actionstrategies.AttackEnemyStrategy;
 import com.mycompany.princeextreme.actionstrategies.ChopperStrategy;
@@ -21,13 +15,7 @@ import cz.tieto.princegame.common.GameStrategy;
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.gameobject.Prince;
 
-/**
- * 
- * @author nzh4954
- */
 public class PersiaStrategy implements GameStrategy {
-
-    private static final Logger Log = LoggerFactory.getLogger(PersiaStrategy.class);
 
     public interface ActionStrategy {
 
@@ -35,9 +23,10 @@ public class PersiaStrategy implements GameStrategy {
 
     }
 
-    private List<ActionStrategy> strategies = new ArrayList<ActionStrategy>();
+    public static List<ActionStrategy> strategies = new ArrayList<ActionStrategy>();
+    public static List<ActionStrategy> retreatStrategies = new ArrayList<ActionStrategy>();
 
-    {
+    static {
         strategies.add(new EnterGateStrategy());
         strategies.add(new HealStrategy());
         strategies.add(new GrabEquipmentStrategy());
@@ -45,30 +34,37 @@ public class PersiaStrategy implements GameStrategy {
         strategies.add(new PitfallStrategy());
         strategies.add(new ChopperStrategy());
         strategies.add(new SimpleMoveStrategy());
+
+        retreatStrategies.add(new EnterGateStrategy());
+        retreatStrategies.add(new PitfallStrategy());
+        retreatStrategies.add(new ChopperStrategy());
+        retreatStrategies.add(new SimpleMoveStrategy());
     }
 
     private int steps = 0;
 
-    private com.mycompany.princeextreme.GameStrategy gameStrategy = new com.mycompany.princeextreme.GameStrategy();
+    private com.mycompany.princeextreme.GameContext gameStrategy = new com.mycompany.princeextreme.GameContext();
 
     public Action step(Prince prince) {
         System.out.println("STEP " + ++steps);
         System.out.println("----");
         System.out.println("princeHealth:" + prince.getHealth());
 
-        TurnStrategy turnStrategy = new TurnStrategy(prince, gameStrategy, strategies);
+        TurnStrategy turnStrategy = gameStrategy.newStep(prince, steps, strategies);
         Action action = turnStrategy.invokeFirst(prince, turnStrategy);
-        turnStrategy.setAction(action);
 
         System.out.println("action:" + action.getClass().getSimpleName());
 
-        gameStrategy = gameStrategy.clone();
+        turnStrategy.setAction(action);
+        gameStrategy = gameStrategy.clone(true);
         gameStrategy.getHistory().add(turnStrategy);
-        gameStrategy.updateLevelMap(turnStrategy);
+        Utils.updatePrincePossition(gameStrategy, action);
 
         System.out.println("---");
         System.out.println("");
+
         return action;
     }
+
 
 }
