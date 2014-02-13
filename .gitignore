@@ -1,2 +1,34 @@
+*/target/**
+target/**
+*/.settings/**
+.settings/**
+*/.metadata/**
+.metadata/**
+*/.project
+.project
+*/.classpath
+.classpath
+*/target-eclipse/**
+target-eclipse/**
+*/logs/**
+bin/
+logs/
+.externalToolBuilders/
+maven-eclipse.xml
+*.class
+.springBeans
+fitnesse/FitNesseRoot/files/testResults/*
+fitnesse/error.log
+*/.metadata/**
+
+# IntelliJ IDEA project files
+.idea
+*.iml
+*.ipr
+*.iws
+
+# mac
+.DS_Store
 /target
 /.settings
+
