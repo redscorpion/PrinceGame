@@ -107,7 +107,7 @@ public class LevelMap implements Cloneable {
     }
 
     private boolean isDeadly(MapField mapField) {
-        return mapField != null && Utils.isAliveEnemy(mapField.getGameField().getObstacle());
+        return mapField != null && mapField.getGameField() != null && Utils.isAliveEnemy(mapField.getGameField().getObstacle());
     }
 
     private void updateMapField(int pos, Field gameField) {

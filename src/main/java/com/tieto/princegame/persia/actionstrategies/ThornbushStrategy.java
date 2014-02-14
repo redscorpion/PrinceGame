@@ -15,14 +15,16 @@ import cz.tieto.princegame.common.gameobject.Prince;
 
 public class ThornbushStrategy implements ActionStrategy {
 
-    private static final Logger Log = Logger.getLogger(ChopperStrategy.class.getName());
+    private static final Logger Log = Logger.getLogger(ThornbushStrategy.class.getName());
 
     public Action getAction(Prince prince, TurnStrategy turnStrategy) {
         Field next = turnStrategy.getNextStepField(prince);
 
         if (next != null && EObstacle.THORNBUSH.equalsTo(next.getObstacle())) {
+            Log.fine("-- thornbush");
             boolean burnt = Boolean.parseBoolean(next.getObstacle().getProperty("burnt"));
             if (!burnt) {
+                Log.fine("-- not burnt");
                 Equipment matches = Utils.getEquipment(prince, EEquipment.MATCHES);
                 if (matches != null) {
                     return turnStrategy.use(matches, next.getObstacle());
@@ -32,6 +34,8 @@ public class ThornbushStrategy implements ActionStrategy {
                     turnStrategy.getGame().setStepDirection(turnStrategy.getStepDirection());
                     return turnStrategy.evaluateNext();
                 }
+            } else {
+                Log.fine("-- burnt");
             }
         }
 

@@ -93,13 +93,7 @@ public class Utils {
             }
             if (mapField.getGameField().getObstacle() != null) {
                 Obstacle obstacle = mapField.getGameField().getObstacle();
-                if (!isEnemy(obstacle) || isAlive(obstacle)) {
-                    if (EObstacle.THORNBUSH.equalsTo(obstacle)) {
-                        boolean burnt = Boolean.parseBoolean(obstacle.getProperty("burnt"));
-                        if (burnt) {
-                            continue;
-                        }
-                    }
+                if (!EObstacle.isDisabled(obstacle)) {
                     return false;
                 }
             }
@@ -154,7 +148,7 @@ public class Utils {
         int princePos = turnStrategy.getGame().getPrincePos();
         for (Obstacle enemy : levelMap.getAllEnemies()) {
             int distance = levelMap.getEnemyDistance(enemy, princePos);
-            if (distance < getAttackRange(enemy)) {
+            if (Math.abs(distance) < getAttackRange(enemy)) {
                 return distance > 0 ? EDirection.FWD : EDirection.BKW;
             }
         }

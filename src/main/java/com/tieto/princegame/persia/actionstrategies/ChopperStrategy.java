@@ -20,7 +20,7 @@ public class ChopperStrategy implements ActionStrategy {
         if (next != null && EObstacle.CHOPPER.equalsTo(next.getObstacle())) {
             boolean closing = Boolean.parseBoolean(next.getObstacle().getProperty("closing"));
             boolean opening = Boolean.parseBoolean(next.getObstacle().getProperty("opening"));
-            if (closing == false && opening == true) {
+            if (!closing && opening) {
                 Log.fine("-- chopper is opening, jump");
                 return turnStrategy.jump(true);
             } else {

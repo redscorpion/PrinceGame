@@ -3,6 +3,8 @@
  **************************************************************************************************/
 package com.tieto.princegame.persia.domain;
 
+import com.tieto.princegame.persia.Utils;
+
 import cz.tieto.princegame.common.gameobject.Obstacle;
 
 public enum EObstacle {
@@ -50,4 +52,22 @@ public enum EObstacle {
         }
         return null;
     }
+
+    public static boolean isDisabled(Obstacle obstacle) {
+        if (obstacle == null) {
+            return true;
+        }
+
+        if (Utils.isEnemy(obstacle)) {
+            return !Utils.isAlive(obstacle);
+        }
+
+        // TODO refactor
+        if (EObstacle.THORNBUSH.equalsTo(obstacle)) {
+            return Boolean.parseBoolean(obstacle.getProperty("burnt"));
+        }
+
+        return false;
+    }
+
 }
