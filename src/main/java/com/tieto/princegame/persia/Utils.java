@@ -121,9 +121,22 @@ public class Utils {
         return damage == null || damage <= 0;
     }
 
-    public static Obstacle getNearestEnemy(Game game, int pos, int radius) {
-        List<Obstacle> enemies = game.getLevelMap().findEnemyNear(pos, radius);
-        return enemies.size() > 0 ? enemies.get(0) : null;
+    public static Obstacle getEnemyToAttack(Game game, int pos, int attackRadius) {
+        List<Obstacle> enemies = game.getLevelMap().findEnemyNear(pos, attackRadius);
+        return getEnemyWithLowestHealth(enemies);
+    }
+
+    private static Obstacle getEnemyWithLowestHealth(List<Obstacle> enemies) {
+        int minHealth = Integer.MAX_VALUE;
+        Obstacle minHealthEnemy = null;
+        for (Obstacle obstacle : enemies) {
+            int enemyHealth = getHealth(obstacle);
+            if (enemyHealth < minHealth) {
+                minHealth = enemyHealth;
+                minHealthEnemy = obstacle;
+            }
+        }
+        return minHealthEnemy;
     }
 
     public static EDirection getEnemyDirection(Game game, Obstacle enemy) {
