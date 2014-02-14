@@ -113,15 +113,15 @@ public class PersiaStrategyTest {
 
     @Test
     public void test() {
-        testField.setPrinceHealth(20);
+        testField.setPrinceHealth(10);
         testField.setPrinceMaxHealth(10);
         testField.setPos(3);
         testField.setGatePos(8);
         testField.setLength(9);
-        testField.addObstacle(7, new Chopper());
-        testField.addObstacle(4, new Knight(10));
-        testField.addEquipment(3, new Sword());
-        testField.addObstacle(2, new Knight(10));
+        testField.addObstacle(2, new Chopper());
+        testField.addObstacle(4, new Dragon(10));
+        testField.addObstacle(5, new Dragon(10));
+        testField.addEquipment(1, new Sword());
 
         PersiaStrategy strategy = new PersiaStrategy();
 
@@ -175,15 +175,18 @@ public class PersiaStrategyTest {
     }
 
     private final class Chopper implements Obstacle {
+        private boolean closing = true;
+        private boolean opening = false;
+
         public String getProperty(String arg0) {
             if ("name".equals(arg0)) {
                 return getName();
             }
             if ("closing".equals(arg0)) {
-                return "" + false;
+                return "" + closing;
             }
             if ("opening".equals(arg0)) {
-                return "" + true;
+                return "" + opening;
             }
             return null;
         }
@@ -194,6 +197,11 @@ public class PersiaStrategyTest {
 
         public int getId() {
             return System.identityHashCode(this);
+        }
+
+        public void turn() {
+            closing = !closing;
+            opening = !opening;
         }
     }
 
@@ -214,13 +222,19 @@ public class PersiaStrategyTest {
         }
     }
 
-    private interface KillableObstacle {
+    private interface Enemy {
         void setHealth(int h);
 
         int getHealth();
+
+        /**
+         * @param i
+         * @return
+         */
+        int getDamage(int i);
     }
 
-    private final class Knight implements Obstacle, KillableObstacle {
+    private final class Knight implements Obstacle, Enemy {
 
         private int health;
 
@@ -253,15 +267,20 @@ public class PersiaStrategyTest {
             return health;
         }
 
-        /**
-         * @param i
-         */
         public void setHealth(int i) {
             this.health = i;
         }
+
+        public int getDamage(int i) {
+            if (Math.abs(i) == 1) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
     }
 
-    private final class Dragon implements Obstacle, KillableObstacle {
+    private final class Dragon implements Obstacle, Enemy {
 
         private int health;
 
@@ -294,11 +313,18 @@ public class PersiaStrategyTest {
             return health;
         }
 
-        /**
-         * @param i
-         */
         public void setHealth(int i) {
             this.health = i;
+        }
+
+        public int getDamage(int i) {
+            if (Math.abs(i) == 2) {
+                return 1;
+            } else if (Math.abs(i) == 1) {
+                return 3;
+            } else {
+                return 0;
+            }
         }
     }
 
@@ -325,18 +351,15 @@ public class PersiaStrategyTest {
         }
 
         public void ememyTurn() {
-            TestField prev = getLookAt(-1);
-            if (prev != null && prev.getObstacle() instanceof KillableObstacle) {
-                KillableObstacle knight = ((KillableObstacle) prev.getObstacle());
-                if (knight.getHealth() > 0) {
-                    princeHealth -= Utils.getAttack(prev.getObstacle(), 1);
+            for (Map.Entry<Integer, Obstacle> entry : obstacles.entrySet()) {
+                if (entry.getValue() instanceof Enemy) {
+                    Enemy enemy = (Enemy) entry.getValue();
+                    if (enemy.getHealth() > 0) {
+                        princeHealth -= enemy.getDamage(entry.getKey() - pos);
+                    }
                 }
-            }
-            TestField next = getLookAt(1);
-            if (next != null && next.getObstacle() instanceof KillableObstacle) {
-                KillableObstacle knight = ((KillableObstacle) next.getObstacle());
-                if (knight.getHealth() > 0) {
-                    princeHealth -= Utils.getAttack(next.getObstacle(), 1);
+                if (entry.getValue() instanceof Chopper) {
+                    ((Chopper) entry.getValue()).turn();
                 }
             }
         }
@@ -359,13 +382,13 @@ public class PersiaStrategyTest {
         public void useEquimpent(Equipment eq) {
             if (inventory.contains(eq)) {
                 TestField prev = getLookAt(-1);
-                if (prev != null && prev.getObstacle() instanceof KillableObstacle) {
-                    KillableObstacle knight = ((KillableObstacle) prev.getObstacle());
+                if (prev != null && prev.getObstacle() instanceof Enemy) {
+                    Enemy knight = ((Enemy) prev.getObstacle());
                     knight.setHealth(knight.getHealth() - Utils.getAttack(prev.getObstacle(), 1));
                 }
                 TestField next = getLookAt(1);
-                if (next != null && next.getObstacle() instanceof KillableObstacle) {
-                    KillableObstacle knight = ((KillableObstacle) next.getObstacle());
+                if (next != null && next.getObstacle() instanceof Enemy) {
+                    Enemy knight = ((Enemy) next.getObstacle());
                     knight.setHealth(knight.getHealth() - Utils.getAttack(next.getObstacle(), 1));
                 }
             }
