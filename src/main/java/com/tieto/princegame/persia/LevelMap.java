@@ -120,25 +120,32 @@ public class LevelMap implements Cloneable {
 
         if (mapField != null) {
             Field oldGameField = mapField.getGameField();
-            if (oldGameField != null && Utils.isAliveEnemy(oldGameField.getObstacle())) {
-                if (gameField != null && Utils.isDeadEnemy(gameField.getObstacle())) {
-                    Log.fine("-- enemy " + oldGameField.getObstacle().getName() + " is now dead");
-                    int attackRange = Utils.getAttackRange(oldGameField.getObstacle());
-                    for (int i = 1; i <= attackRange; i++) {
-                        MapField f = mapFields.get(pos + i);
-                        if (f != null && f.getDamage() != null) {
-                            f.setDamage(Math.max(0, f.getDamage() - Utils.getAttack(oldGameField.getObstacle(), i)));
-                        }
-                    }
-                    for (int i = 1; i <= attackRange; i++) {
-                        MapField f = mapFields.get(pos - i);
-                        if (f != null && f.getDamage() != null) {
-                            f.setDamage(Math.max(0, f.getDamage() - Utils.getAttack(oldGameField.getObstacle(), i)));
-                        }
-                    }
-                }
+            if (oldGameField != null && Utils.isAliveEnemy(oldGameField.getObstacle()) && gameField != null && Utils.isDeadEnemy(gameField.getObstacle())
+                    && gameField.getObstacle().getId() == oldGameField.getObstacle().getId()) {
+                enemyKilled(pos, gameField.getObstacle());
+
             }
             mapField.setGameField(gameField);
+        }
+    }
+
+    private void enemyKilled(int enemyPos, Obstacle enemy) {
+        Log.fine("-- enemy " + enemy.getName() + " is now dead");
+
+        int attackRange = Utils.getAttackRange(enemy);
+
+        for (int i = 1; i <= attackRange; i++) {
+            MapField f = mapFields.get(enemyPos + i);
+            if (f != null && f.getDamage() != null) {
+                f.setDamage(Math.max(0, f.getDamage() - Utils.getAttack(enemy, i)));
+            }
+        }
+
+        for (int i = 1; i <= attackRange; i++) {
+            MapField f = mapFields.get(enemyPos - i);
+            if (f != null && f.getDamage() != null) {
+                f.setDamage(Math.max(0, f.getDamage() - Utils.getAttack(enemy, i)));
+            }
         }
     }
 
