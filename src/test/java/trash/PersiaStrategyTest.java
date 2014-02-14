@@ -21,12 +21,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.internal.matchers.Matches;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import com.tieto.princegame.persia.PersiaStrategy;
 import com.tieto.princegame.persia.Utils;
+import com.tieto.princegame.persia.domain.EEquipment;
+import com.tieto.princegame.persia.domain.EObstacle;
 
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.action.EnterGate;
@@ -115,19 +118,12 @@ public class PersiaStrategyTest {
     public void test() {
         testField.setPrinceHealth(10);
         testField.setPrinceMaxHealth(10);
-        testField.setPos(7);
-        testField.setGatePos(19);
-        testField.setLength(21);
-        testField.addObstacle(2, new Knight(10));
-        testField.addEquipment(3, new Sword());
-        testField.addObstacle(4, new Pitfall());
-        testField.addObstacle(6, new Chopper());
-        testField.addObstacle(11, new Chopper());
-        testField.addObstacle(13, new Knight(10));
-        testField.addObstacle(14, new Knight(10));
-        testField.addObstacle(15, new Dragon(10));
-        testField.addObstacle(16, new Dragon(10));
-        testField.addObstacle(17, new Pitfall());
+        testField.setPos(3);
+        testField.setGatePos(7);
+        testField.setLength(10);
+
+        testField.addEquipment(1, new Matches());
+        testField.addObstacle(5, new Thornbush());
 
         PersiaStrategy strategy = new PersiaStrategy();
 
@@ -180,6 +176,35 @@ public class PersiaStrategyTest {
         }
     }
 
+    private final class Thornbush implements Obstacle {
+        boolean burnt = false;
+
+        public String getProperty(String arg0) {
+            if ("name".equals(arg0)) {
+                return getName();
+            }
+            if ("burnt".equals(arg0)) {
+                return "" + burnt;
+            }
+            return null;
+        }
+
+        public String getName() {
+            return "thornbush";
+        }
+
+        public int getId() {
+            return System.identityHashCode(this);
+        }
+
+        /**
+         * @param b
+         */
+        public void setBurnt(boolean b) {
+            this.burnt = b;
+        }
+    }
+
     private final class Chopper implements Obstacle {
         private boolean closing = true;
         private boolean opening = false;
@@ -221,6 +246,23 @@ public class PersiaStrategyTest {
 
         public String getName() {
             return "sword";
+        }
+
+        public int getId() {
+            return System.identityHashCode(this);
+        }
+    }
+    
+    private final class Matches implements Equipment {
+        public String getProperty(String arg0) {
+            if ("name".equals(arg0)) {
+                return getName();
+            }
+            return null;
+        }
+
+        public String getName() {
+            return "matches";
         }
 
         public int getId() {
@@ -396,6 +438,9 @@ public class PersiaStrategyTest {
                 if (next != null && next.getObstacle() instanceof Enemy) {
                     Enemy knight = ((Enemy) next.getObstacle());
                     knight.setHealth(knight.getHealth() - Utils.getAttack(next.getObstacle(), 1));
+                }
+                if (EEquipment.MATCHES.equalsTo(eq) && (next != null && EObstacle.valueOf(next.getObstacle()) == EObstacle.THORNBUSH)) {
+                    ((Thornbush) next.getObstacle()).setBurnt(true);
                 }
             }
         }
