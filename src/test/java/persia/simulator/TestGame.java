@@ -27,16 +27,24 @@ public final class TestGame implements Cloneable {
     private int princePos;
     private int gatePos;
     private int levelLength;
+    private Map<Integer, Obstacle> obstacles;
+    private Map<Integer, Equipment> equipments;
 
-    private Map<Integer, Obstacle> obstacles = new HashMap<Integer, Obstacle>();
-    private Map<Integer, Equipment> equipments = new HashMap<Integer, Equipment>();
     private Map<Integer, Field> fields = new HashMap<Integer, Field>();
 
-    public TestGame(TestPrince prince, int levelLength, int playerPos, int gatePos) {
+    private boolean gameOver;
+
+    public TestGame(TestPrince prince, int levelLength, int princePos, int gatePos) {
+        this(prince, levelLength, princePos, gatePos, new HashMap<Integer, Obstacle>(), new HashMap<Integer, Equipment>());
+    }
+
+    public TestGame(TestPrince prince, int levelLength, Integer princePos, Integer gatePos, Map<Integer, Obstacle> obstacles, Map<Integer, Equipment> equipments) {
         this.prince = prince;
         this.levelLength = levelLength;
-        this.princePos = playerPos;
+        this.princePos = princePos;
         this.gatePos = gatePos;
+        this.equipments = equipments;
+        this.obstacles = obstacles;
         prince.setGame(this);
     }
 
@@ -63,6 +71,13 @@ public final class TestGame implements Cloneable {
         int distance = getDistanceFromPrince(target);
         if (Math.abs(distance) <= 1) {
             ((TestObstacle) target).useEquipment(this, equipment);
+        }
+    }
+
+    private void doEnterGate() {
+        if (isGate(princePos)) {
+            gameOver = true;
+            System.out.println("VICTORY");
         }
     }
 
@@ -111,27 +126,38 @@ public final class TestGame implements Cloneable {
     }
 
     public TestGame doStep(Action step) {
-        TestGame gameSimulator = clone();
+        if (gameOver) {
+            throw new IllegalStateException();
+        }
+
+        TestGame gameClone = clone();
         if (step instanceof MoveForward) {
-            gameSimulator.doMoveForward();
+            gameClone.doMoveForward();
         } else if (step instanceof MoveBackward) {
-            gameSimulator.doMoveBackward();
+            gameClone.doMoveBackward();
         } else if (step instanceof JumpForward) {
-            gameSimulator.doJumpForward();
+            gameClone.doJumpForward();
         } else if (step instanceof JumpBackward) {
-            gameSimulator.doJumpBackward();
+            gameClone.doJumpBackward();
         } else if (step instanceof Grab) {
-            gameSimulator.doGrabEquipment();
+            gameClone.doGrabEquipment();
         } else if (step instanceof Use) {
-            gameSimulator.doUseEquimpent(((Use) step).getEquipment(), ((Use) step).getObstacle());
+            gameClone.doUseEquimpent(((Use) step).getEquipment(), ((Use) step).getObstacle());
         } else if (step instanceof Heal) {
-            gameSimulator.doHeal();
+            gameClone.doHeal();
         } else if (step instanceof EnterGate) {
+            gameClone.doEnterGate();
         } else {
             throw new UnsupportedOperationException();
         }
-        gameSimulator.ememyTurn();
-        return gameSimulator;
+        gameClone.ememyTurn();
+
+        if (getPrince().getHealth() <= 0) {
+            gameOver = true;
+            System.out.println("PRINCE DEAD");
+        }
+
+        return gameClone;
     }
 
     private void doHeal() {
@@ -229,5 +255,9 @@ public final class TestGame implements Cloneable {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public boolean isOwer() {
+        return gameOver;
     }
 }

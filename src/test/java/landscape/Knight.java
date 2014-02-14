@@ -42,5 +42,9 @@ public class Knight implements Obstacle {
     public void setHealth(int i) {
         this.health = i;
     }
+    
+    public void fight(){
+    	health -=2;
+    }
 }
 
