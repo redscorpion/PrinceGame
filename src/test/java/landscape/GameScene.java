@@ -38,6 +38,8 @@ public class GameScene {
 	static boolean hasSword = false;
 	
 	static Prince prince = null;
+	
+	static List<Equipment> equipments = new ArrayList<Equipment>();
 
 	public static List<Field> generateFields(String... field_idents) {
 		fields = new ArrayList<Field>(field_idents.length);
@@ -125,9 +127,13 @@ public class GameScene {
 			Equipment equipment = fields.get(currentPosition).getEquipment();
 			if (equipment != null && equipment.getName().equals("sword")) {
 				hasSword = true;
-				List<Equipment> value = new ArrayList<Equipment>();
-				value.add(new Sword());
-				when(prince.getInventory()).thenReturn(value);
+				equipments.add(equipment);
+				when(prince.getInventory()).thenReturn(equipments);
+			}
+			if (equipment != null && equipment instanceof Matches) {
+				equipments.add(equipment);
+				System.out.println("Matches Grabbed");
+				when(prince.getInventory()).thenReturn(equipments);
 			}
 			when(fields.get(currentPosition).getEquipment()).thenReturn(null);		
 		}
