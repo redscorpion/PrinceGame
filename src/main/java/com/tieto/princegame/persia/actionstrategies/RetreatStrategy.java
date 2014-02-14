@@ -2,9 +2,9 @@ package com.tieto.princegame.persia.actionstrategies;
 
 import java.util.logging.Logger;
 
+import com.tieto.princegame.persia.PersiaStrategy.ActionStrategy;
 import com.tieto.princegame.persia.TurnStrategy;
 import com.tieto.princegame.persia.Utils;
-import com.tieto.princegame.persia.PersiaStrategy.ActionStrategy;
 import com.tieto.princegame.persia.domain.EDirection;
 
 import cz.tieto.princegame.common.action.Action;
@@ -34,6 +34,11 @@ public class RetreatStrategy implements ActionStrategy {
             }
             if (shouldRetreat(prince, turnStrategy, enemyDirection != null ? enemyDirection.opposite() : null)) {
                 Log.fine("-- low health");
+                Integer damage = turnStrategy.getGame().getLevelMap().getDamageAt(turnStrategy.getGame().getPrincePos());
+                if (damage != null && damage > prince.getHealth()) {
+                    Log.fine("-- it's hard to survive here, damage is too high!");
+                }
+
                 if (enemyDirection == null) {
                     TurnStrategy lastStrategy = turnStrategy.getGame().getHistory().lastElement();
                     if (lastStrategy != null) {
@@ -52,7 +57,7 @@ public class RetreatStrategy implements ActionStrategy {
                 beginRetreat(turnStrategy, enemyDirection.opposite());
                 Action bestRetreatAction = Utils.getBestRetreatAction(turnStrategy, enemyDirection.opposite());
                 if (Utils.isHeal(bestRetreatAction)) {
-                    Log.fine("-- not good, we can only heal!");
+                    Log.fine("-- not good, we can't move... only heal!");
                     return turnStrategy.evaluateNext();
                 }
                 return bestRetreatAction;
