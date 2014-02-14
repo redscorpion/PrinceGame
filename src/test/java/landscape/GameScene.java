@@ -34,8 +34,6 @@ public class GameScene {
 	public static List<Field> fields = null;
 
 	public static int currentPosition;
-
-	static boolean hasSword = false;
 	
 	static Prince prince = null;
 	
@@ -48,8 +46,7 @@ public class GameScene {
 			fields.add(field);
 
 			if (field_ident.equals(SWORD)) {
-				Equipment equipment = mock(Equipment.class);
-				when(equipment.getName()).thenReturn("sword");
+				Equipment equipment = new Sword();
 				when(field.getEquipment()).thenReturn(equipment);			
 			}
 			
@@ -116,26 +113,30 @@ public class GameScene {
 	public static int updateGameScene(Action action) {
 		if(action instanceof Use){
 			Use u = (Use) action;
-			if (u.getEquipment().getName().equals("matches") && u.getObstacle().getName().equals("thornbush")){
+			if (u.getEquipment() instanceof Matches && u.getObstacle() instanceof ThornBush){
 				ThornBush bush = (ThornBush) u.getObstacle();
 				bush.burn();
+			}
+			
+			if (u.getEquipment() instanceof Sword && u.getObstacle() instanceof Knight){
+				Knight knight = (Knight) u.getObstacle();
+				knight.fight();
 			}
 		}	
 		
 		if (action instanceof Grab) {
 			System.out.println("Grab");
 			Equipment equipment = fields.get(currentPosition).getEquipment();
-			if (equipment != null && equipment.getName().equals("sword")) {
-				hasSword = true;
-				equipments.add(equipment);
+			if (equipment != null && equipment instanceof Sword) {
+				equipments.add(equipment);				
 				when(prince.getInventory()).thenReturn(equipments);
 			}
 			if (equipment != null && equipment instanceof Matches) {
 				equipments.add(equipment);
-				System.out.println("Matches Grabbed");
 				when(prince.getInventory()).thenReturn(equipments);
 			}
 			when(fields.get(currentPosition).getEquipment()).thenReturn(null);		
+			System.out.println("GRABBED : " + equipment);
 		}
 
 		int candidatePosition = currentPosition;
