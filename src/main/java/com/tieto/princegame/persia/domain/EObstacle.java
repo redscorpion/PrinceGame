@@ -7,7 +7,7 @@ import cz.tieto.princegame.common.gameobject.Obstacle;
 
 public enum EObstacle {
 
-    PITFALL("pitfall", 0), KNIGHT("knight", 1, 1), DRAGON("dragon", 2, 3, 1), CHOPPER("chopper", 0);
+    PITFALL("pitfall", 0), KNIGHT("knight", 1, 1), DRAGON("dragon", 2, 3, 1), CHOPPER("chopper", 0), THORNBUSH("thornbush", 0);
 
     private String name;
     private int attackRange;

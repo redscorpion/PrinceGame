@@ -115,13 +115,19 @@ public class PersiaStrategyTest {
     public void test() {
         testField.setPrinceHealth(10);
         testField.setPrinceMaxHealth(10);
-        testField.setPos(3);
-        testField.setGatePos(8);
-        testField.setLength(9);
-        testField.addObstacle(2, new Chopper());
-        testField.addObstacle(4, new Dragon(10));
-        testField.addObstacle(5, new Dragon(10));
-        testField.addEquipment(1, new Sword());
+        testField.setPos(7);
+        testField.setGatePos(19);
+        testField.setLength(21);
+        testField.addObstacle(2, new Knight(10));
+        testField.addEquipment(3, new Sword());
+        testField.addObstacle(4, new Pitfall());
+        testField.addObstacle(6, new Chopper());
+        testField.addObstacle(11, new Chopper());
+        testField.addObstacle(13, new Knight(10));
+        testField.addObstacle(14, new Knight(10));
+        testField.addObstacle(15, new Dragon(10));
+        testField.addObstacle(16, new Dragon(10));
+        testField.addObstacle(17, new Pitfall());
 
         PersiaStrategy strategy = new PersiaStrategy();
 
