@@ -94,6 +94,12 @@ public class Utils {
             if (mapField.getGameField().getObstacle() != null) {
                 Obstacle obstacle = mapField.getGameField().getObstacle();
                 if (!isEnemy(obstacle) || isAlive(obstacle)) {
+                    if (EObstacle.THORNBUSH.equalsTo(obstacle)) {
+                        boolean burnt = Boolean.parseBoolean(obstacle.getProperty("burnt"));
+                        if (burnt) {
+                            continue;
+                        }
+                    }
                     return false;
                 }
             }

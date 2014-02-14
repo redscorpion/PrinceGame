@@ -2,6 +2,7 @@ package com.tieto.princegame.persia;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.tieto.princegame.persia.PersiaStrategy.ActionStrategy;
 import com.tieto.princegame.persia.domain.EDirection;
@@ -20,6 +21,9 @@ import cz.tieto.princegame.common.gameobject.Obstacle;
 import cz.tieto.princegame.common.gameobject.Prince;
 
 public class TurnStrategy {
+
+    private static final Logger Log = Logger.getLogger(TurnStrategy.class.getName());
+
     private final Prince prince;
     private final Field field;
     private final List<ActionStrategy> strategies;
@@ -124,6 +128,7 @@ public class TurnStrategy {
     }
 
     public Action use(Equipment eq, Obstacle obstacle) {
+        Log.fine("-- use " + eq.getName() + " on " + obstacle.getName());
         return new Use(eq, obstacle);
     }
 
