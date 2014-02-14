@@ -17,6 +17,7 @@ import com.tieto.princegame.persia.actionstrategies.HealStrategy;
 import com.tieto.princegame.persia.actionstrategies.PitfallStrategy;
 import com.tieto.princegame.persia.actionstrategies.RetreatStrategy;
 import com.tieto.princegame.persia.actionstrategies.SimpleMoveStrategy;
+import com.tieto.princegame.persia.actionstrategies.ThornbushStrategy;
 
 import cz.tieto.princegame.common.GameStrategy;
 import cz.tieto.princegame.common.action.Action;
@@ -43,11 +44,13 @@ public class PersiaStrategy implements GameStrategy {
         actionStrategies.add(new HealStrategy());
         actionStrategies.add(new GrabEquipmentStrategy());
         actionStrategies.add(new AttackEnemyStrategy());
+        actionStrategies.add(new ThornbushStrategy());
         actionStrategies.add(new PitfallStrategy());
         actionStrategies.add(new ChopperStrategy());
         actionStrategies.add(new SimpleMoveStrategy());
 
         retreatActionStrategies.add(new EnterGateStrategy());
+        retreatActionStrategies.add(new ThornbushStrategy());
         retreatActionStrategies.add(new PitfallStrategy());
         retreatActionStrategies.add(new ChopperStrategy());
         retreatActionStrategies.add(new SimpleMoveStrategy());

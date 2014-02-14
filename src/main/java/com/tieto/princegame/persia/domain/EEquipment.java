@@ -4,7 +4,7 @@ import cz.tieto.princegame.common.gameobject.Equipment;
 
 public enum EEquipment {
 
-    SWORD("sword", 1); // ?
+    SWORD("sword", 1), MATCHES("matches", 0); // ?
 
     private String name;
     private int attack;
