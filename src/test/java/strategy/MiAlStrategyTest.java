@@ -56,5 +56,14 @@ public class MiAlStrategyTest {
 				"GATE", "PATH"), 3);
 
 	}
+	
+	
+	@Test
+	public void testBush() {
+
+		testRunner(GameScene.generateFields("PATH","MATCHES", "PITFALL", "PATH", "PITFALL", "PATH","THORN_BUSH",
+				"GATE", "PATH"), 3);
+
+	}
 
 }

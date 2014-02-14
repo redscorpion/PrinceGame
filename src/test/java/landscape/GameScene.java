@@ -14,6 +14,7 @@ import cz.tieto.princegame.common.action.JumpBackward;
 import cz.tieto.princegame.common.action.JumpForward;
 import cz.tieto.princegame.common.action.MoveBackward;
 import cz.tieto.princegame.common.action.MoveForward;
+import cz.tieto.princegame.common.action.Use;
 import cz.tieto.princegame.common.gameobject.Equipment;
 import cz.tieto.princegame.common.gameobject.Field;
 import cz.tieto.princegame.common.gameobject.Obstacle;
@@ -27,6 +28,8 @@ public class GameScene {
 	public static String KNIGHT = "KNIGHT";
 	public static String PITFALL = "PITFALL";
 	public static String DRAGON = "DRAGON";
+	public static String THORN_BUSH = "THORN_BUSH";
+	public static String MATCHES = "MATCHES";
 
 	public static List<Field> fields = null;
 
@@ -47,6 +50,11 @@ public class GameScene {
 				when(equipment.getName()).thenReturn("sword");
 				when(field.getEquipment()).thenReturn(equipment);			
 			}
+			
+			if (field_ident.equals(MATCHES)) {
+				Equipment equipment = new Matches();
+				when(field.getEquipment()).thenReturn(equipment);			
+			}
 
 			if (field_ident.equals(PITFALL)) {
 				Obstacle obstacle = mock(Obstacle.class);
@@ -61,6 +69,11 @@ public class GameScene {
 			
 			if (field_ident.equals(DRAGON)) {
 				Obstacle obstacle = new Dragon(3);
+				when(field.getObstacle()).thenReturn(obstacle);
+			}
+			
+			if (field_ident.equals(THORN_BUSH)) {
+				Obstacle obstacle = new ThornBush();
 				when(field.getObstacle()).thenReturn(obstacle);
 			}
 
@@ -99,6 +112,14 @@ public class GameScene {
 	}
 
 	public static int updateGameScene(Action action) {
+		if(action instanceof Use){
+			Use u = (Use) action;
+			if (u.getEquipment().getName().equals("matches") && u.getObstacle().getName().equals("thornbush")){
+				ThornBush bush = (ThornBush) u.getObstacle();
+				bush.burn();
+			}
+		}	
+		
 		if (action instanceof Grab) {
 			System.out.println("Grab");
 			Equipment equipment = fields.get(currentPosition).getEquipment();
@@ -196,6 +217,23 @@ class Sword implements Equipment {
 	
 	public String getName() {
 		return "sword";
+	}
+	
+	public int getId() {
+		return System.identityHashCode(this);
+	}
+}
+
+class Matches implements Equipment {
+	public String getProperty(String arg0) {
+		if ("name".equals(arg0)) {
+			return getName();
+		}
+		return null;
+	}
+	
+	public String getName() {
+		return "matches";
 	}
 	
 	public int getId() {
