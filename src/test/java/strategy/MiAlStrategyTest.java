@@ -7,7 +7,7 @@ import landscape.GameScene;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.mycompany.princeextreme.PersiaStrategy;
+import com.tieto.princegame.persia.PersiaStrategy;
 
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.action.EnterGate;

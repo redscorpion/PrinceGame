@@ -1,8 +1,8 @@
-package com.mycompany.princeextreme.actionstrategies;
+package com.tieto.princegame.persia.actionstrategies;
 
-import com.mycompany.princeextreme.EObstacle;
-import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
-import com.mycompany.princeextreme.TurnStrategy;
+import com.tieto.princegame.persia.TurnStrategy;
+import com.tieto.princegame.persia.PersiaStrategy.ActionStrategy;
+import com.tieto.princegame.persia.domain.EObstacle;
 
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.gameobject.Field;

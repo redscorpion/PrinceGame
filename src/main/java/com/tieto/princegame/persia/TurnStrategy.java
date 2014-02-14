@@ -1,9 +1,10 @@
-package com.mycompany.princeextreme;
+package com.tieto.princegame.persia;
 
 import java.util.Iterator;
 import java.util.List;
 
-import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
+import com.tieto.princegame.persia.PersiaStrategy.ActionStrategy;
+import com.tieto.princegame.persia.domain.EDirection;
 
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.action.Grab;

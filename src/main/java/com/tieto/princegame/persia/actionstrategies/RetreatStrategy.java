@@ -1,11 +1,11 @@
-package com.mycompany.princeextreme.actionstrategies;
+package com.tieto.princegame.persia.actionstrategies;
 
 import java.util.logging.Logger;
 
-import com.mycompany.princeextreme.EDirection;
-import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
-import com.mycompany.princeextreme.TurnStrategy;
-import com.mycompany.princeextreme.Utils;
+import com.tieto.princegame.persia.TurnStrategy;
+import com.tieto.princegame.persia.Utils;
+import com.tieto.princegame.persia.PersiaStrategy.ActionStrategy;
+import com.tieto.princegame.persia.domain.EDirection;
 
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.gameobject.Prince;

@@ -1,4 +1,4 @@
-package com.mycompany.princeextreme;
+package com.tieto.princegame.persia;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;

@@ -1,4 +1,4 @@
-package com.mycompany.princeextreme;
+package com.tieto.princegame.persia.domain;
 
 public enum EDirection {
     FWD, BKW;

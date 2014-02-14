@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * Copyright 2013 TeliaSonera. All rights reserved.
  **************************************************************************************************/
-package com.mycompany.princeextreme;
+package com.tieto.princegame.persia.domain;
 
 import cz.tieto.princegame.common.gameobject.Obstacle;
 

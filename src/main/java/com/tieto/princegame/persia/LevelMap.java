@@ -1,4 +1,4 @@
-package com.mycompany.princeextreme;
+package com.tieto.princegame.persia;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
+
+import com.tieto.princegame.persia.domain.EDirection;
 
 import cz.tieto.princegame.common.gameobject.Field;
 import cz.tieto.princegame.common.gameobject.Obstacle;
@@ -141,7 +143,7 @@ public class LevelMap implements Cloneable {
     }
 
     @Override
-    protected LevelMap clone() {
+    public LevelMap clone() {
         try {
             LevelMap clone = (LevelMap) super.clone();
             clone.mapFields = new HashMap<Integer, LevelMap.MapField>(mapFields);

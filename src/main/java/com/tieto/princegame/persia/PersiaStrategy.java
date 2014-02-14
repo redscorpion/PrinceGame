@@ -1,4 +1,4 @@
-package com.mycompany.princeextreme;
+package com.tieto.princegame.persia;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,14 +9,14 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import com.mycompany.princeextreme.actionstrategies.AttackEnemyStrategy;
-import com.mycompany.princeextreme.actionstrategies.ChopperStrategy;
-import com.mycompany.princeextreme.actionstrategies.EnterGateStrategy;
-import com.mycompany.princeextreme.actionstrategies.GrabEquipmentStrategy;
-import com.mycompany.princeextreme.actionstrategies.HealStrategy;
-import com.mycompany.princeextreme.actionstrategies.PitfallStrategy;
-import com.mycompany.princeextreme.actionstrategies.RetreatStrategy;
-import com.mycompany.princeextreme.actionstrategies.SimpleMoveStrategy;
+import com.tieto.princegame.persia.actionstrategies.AttackEnemyStrategy;
+import com.tieto.princegame.persia.actionstrategies.ChopperStrategy;
+import com.tieto.princegame.persia.actionstrategies.EnterGateStrategy;
+import com.tieto.princegame.persia.actionstrategies.GrabEquipmentStrategy;
+import com.tieto.princegame.persia.actionstrategies.HealStrategy;
+import com.tieto.princegame.persia.actionstrategies.PitfallStrategy;
+import com.tieto.princegame.persia.actionstrategies.RetreatStrategy;
+import com.tieto.princegame.persia.actionstrategies.SimpleMoveStrategy;
 
 import cz.tieto.princegame.common.GameStrategy;
 import cz.tieto.princegame.common.action.Action;

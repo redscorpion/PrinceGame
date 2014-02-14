@@ -1,4 +1,4 @@
-package com.mycompany.princeextreme;
+package com.tieto.princegame.persia.domain;
 
 import cz.tieto.princegame.common.gameobject.Equipment;
 

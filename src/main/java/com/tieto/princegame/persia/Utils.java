@@ -1,8 +1,11 @@
-package com.mycompany.princeextreme;
+package com.tieto.princegame.persia;
 
 import java.util.List;
 
-import com.mycompany.princeextreme.LevelMap.MapField;
+import com.tieto.princegame.persia.LevelMap.MapField;
+import com.tieto.princegame.persia.domain.EDirection;
+import com.tieto.princegame.persia.domain.EEquipment;
+import com.tieto.princegame.persia.domain.EObstacle;
 
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.action.Heal;

@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package com.mycompany.princeextreme;
+package trash;
 
 import static org.mockito.Mockito.*;
 
@@ -24,6 +24,9 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+
+import com.tieto.princegame.persia.PersiaStrategy;
+import com.tieto.princegame.persia.Utils;
 
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.action.EnterGate;

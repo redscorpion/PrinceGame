@@ -1,7 +1,7 @@
-package com.mycompany.princeextreme.actionstrategies;
+package com.tieto.princegame.persia.actionstrategies;
 
-import com.mycompany.princeextreme.PersiaStrategy.ActionStrategy;
-import com.mycompany.princeextreme.TurnStrategy;
+import com.tieto.princegame.persia.TurnStrategy;
+import com.tieto.princegame.persia.PersiaStrategy.ActionStrategy;
 
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.action.EnterGate;
