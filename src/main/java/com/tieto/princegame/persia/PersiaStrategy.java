@@ -1,5 +1,7 @@
 package com.tieto.princegame.persia;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.ConsoleHandler;
@@ -29,7 +31,7 @@ public class PersiaStrategy implements GameStrategy {
 
     public interface ActionStrategy {
 
-        Action getAction(Prince prince, TurnStrategy context);
+        Action getAction(Prince prince, StepStrategy context);
 
     }
 
@@ -56,49 +58,50 @@ public class PersiaStrategy implements GameStrategy {
         retreatActionStrategies.add(new SimpleMoveStrategy());
     }
 
-    private int step;
-
-    private Game gameStrategy;
+    private final Game game;
 
     public PersiaStrategy() {
-        step = 0;
-        gameStrategy = new Game();
+        Log.fine("************");
+        Log.fine("* NEW GAME *");
+        Log.fine("************");
+        game = new Game();
     }
 
-    public Action step(Prince prince) {
-        Log.info("STEP " + ++step);
-        Log.info("---------");
-        Log.info("-- prince health: " + prince.getHealth());
+    public Action step(final Prince prince) {
+        final StepStrategy stepStrategy = game.newStep(prince, actionStrategies);
 
-        TurnStrategy turnStrategy = gameStrategy.newTurnStrategy(prince, step, actionStrategies);
-
-        Action action = turnStrategy.evaluate();
-        Log.info("-- turn action: " + action.getClass().getSimpleName());
-
-        gameStrategy.setAction(action);
-        gameStrategy = gameStrategy.clone(true);
-        gameStrategy.getHistory().add(turnStrategy);
-        Utils.updatePrincePossition(gameStrategy, action);
-
-        Log.info("---");
+        final Action action = stepStrategy.evaluate();
+        game.setStepAction(action);
 
         return action;
     }
 
     private static void setupLogger() {
-        Logger logger = Logger.getLogger(PersiaStrategy.class.getPackage().getName());
+        final Logger logger = Logger.getLogger(PersiaStrategy.class.getPackage().getName());
         logger.setLevel(Level.FINE);
 
-        Formatter consoleFormatter = new SimpleFormatter() {
+        final Formatter consoleFormatter = new SimpleFormatter() {
+            String format = "%1$s%2$s%n";
+
             @Override
-            public String format(LogRecord record) {
-                return record.getMessage() + System.getProperty("line.separator");
+            public String format(final LogRecord record) {
+                final String message = formatMessage(record);
+                String throwable = "";
+                if (record.getThrown() != null) {
+                    final StringWriter sw = new StringWriter();
+                    final PrintWriter pw = new PrintWriter(sw);
+                    pw.println();
+                    record.getThrown().printStackTrace(pw);
+                    pw.close();
+                    throwable = sw.toString();
+                }
+                return String.format(format, message, throwable);
             }
         };
 
-        ConsoleHandler consoleHandler = new ConsoleHandler();
+        final ConsoleHandler consoleHandler = new ConsoleHandler();
         consoleHandler.setFormatter(consoleFormatter);
-        consoleHandler.setLevel(Level.FINE);
+        consoleHandler.setLevel(Level.ALL);
         consoleHandler.setFilter(null);
 
         logger.setUseParentHandlers(false);

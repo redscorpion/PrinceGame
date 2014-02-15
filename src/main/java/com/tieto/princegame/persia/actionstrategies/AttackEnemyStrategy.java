@@ -2,10 +2,11 @@ package com.tieto.princegame.persia.actionstrategies;
 
 import java.util.logging.Logger;
 
-import com.tieto.princegame.persia.TurnStrategy;
-import com.tieto.princegame.persia.Utils;
 import com.tieto.princegame.persia.PersiaStrategy.ActionStrategy;
+import com.tieto.princegame.persia.StepStrategy;
+import com.tieto.princegame.persia.Utils;
 import com.tieto.princegame.persia.domain.EDirection;
+import com.tieto.princegame.persia.domain.EObstacle;
 
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.gameobject.Equipment;
@@ -16,28 +17,27 @@ public class AttackEnemyStrategy implements ActionStrategy {
 
     private static final Logger Log = Logger.getLogger(AttackEnemyStrategy.class.getName());
 
-    private static final int ATTACK_RANGE = 1;
-
-    public Action getAction(Prince prince, TurnStrategy turnStrategy) {
-        Obstacle enemy = Utils.getEnemyToAttack(turnStrategy.getGame(), turnStrategy.getGame().getPrincePos(), ATTACK_RANGE);
+    public Action getAction(final Prince prince, final StepStrategy stepStrategy) {
+        final Obstacle enemy = Utils.getEnemyToAttack(stepStrategy.getGame());
         if (enemy != null) {
-            EDirection enemyDirection = Utils.getEnemyDirection(turnStrategy.getGame(), enemy);
-            turnStrategy.setStepDirection(enemyDirection);
-            turnStrategy.getGame().setStepDirection(turnStrategy.getStepDirection());
+            final int enemyDistance = Utils.getEnemyDistance(stepStrategy.getGame(), enemy);
+            final EDirection enemyDirection = Utils.getEnemyDirection(enemyDistance);
+            stepStrategy.setStepDirection(enemyDirection);
+            stepStrategy.getGame().setStepDirection(stepStrategy.getStepDirection());
 
-            Log.fine("-- enemy: " + enemy.getName() + " health:" + Utils.getHealth(enemy));
-            Equipment weapon = Utils.getBestWeapon(prince, enemy);
+            Log.fine("-- enemy: " + enemy.getName() + " health: " + EObstacle.getHealth(enemy));
+            final Equipment weapon = Utils.getBestWeapon(prince, enemy, enemyDistance);
             Log.fine("-- weapon: " + (weapon != null ? weapon.getName() : "null"));
             if (weapon == null) {
                 Log.fine("-- switch direction and find weapon");
-                turnStrategy.switchStepDirection();
-                turnStrategy.getGame().setStepDirection(turnStrategy.getStepDirection());
-                return turnStrategy.evaluateNext();
+                stepStrategy.switchStepDirection();
+                stepStrategy.getGame().setStepDirection(stepStrategy.getStepDirection());
+                return stepStrategy.evaluateNext();
             }
 
-            return turnStrategy.use(weapon, enemy);
+            return stepStrategy.use(weapon, enemy);
         }
 
-        return turnStrategy.evaluateNext();
+        return stepStrategy.evaluateNext();
     }
 }

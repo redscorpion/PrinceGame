@@ -1,24 +1,14 @@
-/***************************************************************************************************
- * Copyright 2013 TeliaSonera. All rights reserved.
- **************************************************************************************************/
 package persia.equipment;
 
-import cz.tieto.princegame.common.gameobject.Equipment;
+import persia.simulator.TestEquipment;
 
-public class Sword implements Equipment {
+public final class Sword extends TestEquipment {
 
-    public String getProperty(String arg0) {
-        if ("name".equals(arg0)) {
-            return getName();
-        }
-        return null;
-    }
+    public static final String NAME = "sword";
 
+    @Override
     public String getName() {
-        return "sword";
+        return NAME;
     }
 
-    public int getId() {
-        return System.identityHashCode(this);
-    }
 }

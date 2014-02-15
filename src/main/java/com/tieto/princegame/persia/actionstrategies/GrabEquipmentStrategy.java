@@ -1,7 +1,9 @@
 package com.tieto.princegame.persia.actionstrategies;
 
+import java.util.logging.Logger;
+
 import com.tieto.princegame.persia.PersiaStrategy.ActionStrategy;
-import com.tieto.princegame.persia.TurnStrategy;
+import com.tieto.princegame.persia.StepStrategy;
 import com.tieto.princegame.persia.Utils;
 import com.tieto.princegame.persia.domain.EEquipment;
 
@@ -11,12 +13,16 @@ import cz.tieto.princegame.common.gameobject.Prince;
 
 public class GrabEquipmentStrategy implements ActionStrategy {
 
-    public Action getAction(Prince prince, TurnStrategy turnStrategy) {
-        Equipment equipment = prince.look(0).getEquipment();
-        if (equipment != null && Utils.getEquipment(prince, equipment.getName()) == null && EEquipment.valueOf(equipment) != null) {
-            return turnStrategy.grab();
+    private static final Logger Log = Logger.getLogger(GrabEquipmentStrategy.class.getName());
+
+    public Action getAction(final Prince prince, final StepStrategy stepStrategy) {
+        final Equipment equipment = prince.look(0).getEquipment();
+        if (equipment != null && (EEquipment.isStackable(equipment) || Utils.getEquipment(prince, equipment.getName()) == null)
+                && EEquipment.valueOf(equipment) != null) {
+            Log.info("-- grab " + equipment.getName());
+            return stepStrategy.grab();
         }
 
-        return turnStrategy.evaluateNext();
+        return stepStrategy.evaluateNext();
     }
 }

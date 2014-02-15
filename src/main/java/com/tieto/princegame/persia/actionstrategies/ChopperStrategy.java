@@ -3,7 +3,7 @@ package com.tieto.princegame.persia.actionstrategies;
 import java.util.logging.Logger;
 
 import com.tieto.princegame.persia.PersiaStrategy.ActionStrategy;
-import com.tieto.princegame.persia.TurnStrategy;
+import com.tieto.princegame.persia.StepStrategy;
 import com.tieto.princegame.persia.domain.EObstacle;
 
 import cz.tieto.princegame.common.action.Action;
@@ -14,21 +14,22 @@ public class ChopperStrategy implements ActionStrategy {
 
     private static final Logger Log = Logger.getLogger(ChopperStrategy.class.getName());
 
-    public Action getAction(Prince prince, TurnStrategy turnStrategy) {
-        Field next = turnStrategy.getNextStepField(prince);
+    public Action getAction(final Prince prince, final StepStrategy stepStrategy) {
+        final Field next = stepStrategy.getNextStepField(prince);
 
         if (next != null && EObstacle.CHOPPER.equalsTo(next.getObstacle())) {
-            boolean closing = Boolean.parseBoolean(next.getObstacle().getProperty("closing"));
-            boolean opening = Boolean.parseBoolean(next.getObstacle().getProperty("opening"));
+            Log.fine("-- chopper");
+            final boolean closing = Boolean.parseBoolean(next.getObstacle().getProperty("closing"));
+            final boolean opening = Boolean.parseBoolean(next.getObstacle().getProperty("opening"));
             if (!closing && opening) {
-                Log.fine("-- chopper is opening, jump");
-                return turnStrategy.jump(true);
+                Log.fine("-- is opening, jump");
+                return stepStrategy.jump(true);
             } else {
-                Log.fine("-- chopper is closing, wait");
-                return turnStrategy.heal();
+                Log.fine("-- is closed or closing, wait");
+                return stepStrategy.heal();
             }
         }
 
-        return turnStrategy.evaluateNext();
+        return stepStrategy.evaluateNext();
     }
 }

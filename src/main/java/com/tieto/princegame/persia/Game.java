@@ -15,11 +15,9 @@ public class Game implements Cloneable {
 
     private static final Logger Log = Logger.getLogger(Game.class.getName());
 
-    public static final int MIN_HEALTH = 5;
-
     private EDirection direction = BKW;
 
-    private LevelMap levelMap = new LevelMap();
+    private GameMap gameMap = new GameMap();
 
     private GameHistory history = new GameHistory();
 
@@ -29,28 +27,22 @@ public class Game implements Cloneable {
 
     private boolean retreat;
 
-    private boolean turnBack;
-
-    private boolean allowJumping;
+    private boolean allowJumping = true;
 
     private Action action;
 
+    private StepStrategy stepStrategy;
+
+    private Prince prince;
+
     public Game() {
-        initialize();
     }
 
-    private void initialize() {
-        retreat = false;
-        turnBack = false;
-        allowJumping = true;
-        action = null;
+    public EDirection getStepDirection() {
+        return direction;
     }
 
-    public EDirection getDirection() {
-        return this.direction;
-    }
-
-    public void setStepDirection(EDirection direction) {
+    public void setStepDirection(final EDirection direction) {
         this.direction = direction;
     }
 
@@ -59,18 +51,18 @@ public class Game implements Cloneable {
     }
 
     public void resetLevelMap() {
-        levelMap.reset();
+        gameMap.reset();
     }
 
-    public LevelMap getLevelMap() {
-        return levelMap;
+    public GameMap getGameMap() {
+        return gameMap;
     }
 
     public int getPrincePos() {
         return princePos;
     }
 
-    public void setPrincePos(int princePos) {
+    public void setPrincePos(final int princePos) {
         this.princePos = princePos;
     }
 
@@ -78,11 +70,12 @@ public class Game implements Cloneable {
         return stepNumber;
     }
 
-    public void setAction(Action action) {
+    public void setStepAction(final Action action) {
         this.action = action;
+        Log.info("- step action: " + action.getClass().getSimpleName());
     }
 
-    public Action getAction() {
+    public Action getStepAction() {
         return action;
     }
 
@@ -90,19 +83,11 @@ public class Game implements Cloneable {
         return retreat;
     }
 
-    public void setRetreat(boolean retreat) {
+    public void setRetreat(final boolean retreat) {
         this.retreat = retreat;
     }
 
-    public boolean isTurnBack() {
-        return turnBack;
-    }
-
-    public void setTurnBack(boolean turnBack) {
-        this.turnBack = turnBack;
-    }
-
-    public void setAllowJumping(boolean allowJumping) {
+    public void setAllowJumping(final boolean allowJumping) {
         this.allowJumping = allowJumping;
     }
 
@@ -110,46 +95,62 @@ public class Game implements Cloneable {
         return allowJumping;
     }
 
-    public TurnStrategy newTurnStrategy(Prince prince, int stepNumber, List<ActionStrategy> strategies) {
-        TurnStrategy turnStrategy = new TurnStrategy(prince, this, strategies);
-        this.stepNumber = stepNumber;
-        updateLevelMap(prince);
-        return turnStrategy;
+    public Prince getPrince() {
+        return prince;
     }
 
-    private void updateLevelMap(Prince prince) {
-        levelMap.updateLevelMap(getPrincePos(), prince);
-        updateFieldDamage(prince);
+    public StepStrategy newStep(final Prince prince, final List<ActionStrategy> strategies) {
+        if (stepStrategy != null) {
+            final StepStrategy lastStrategy = stepStrategy.clone();
+            getHistory().add(lastStrategy);
+            Utils.updatePrincePossition(this, lastStrategy.getGame().getStepAction());
+        }
+
+        this.prince = prince;
+        stepNumber++;
+        action = null;
+
+        Log.info("---------");
+        Log.info("STEP " + stepNumber);
+        Log.info("---------");
+        Log.fine("- possition: " + princePos);
+        Log.info("- health: " + prince.getHealth());
+
+        stepStrategy = new StepStrategy(this, strategies);
+
+        updateGameMap(prince);
+
+        return stepStrategy;
     }
 
-    private void updateFieldDamage(Prince prince) {
-        TurnStrategy lastStrategy = getHistory().lastElement();
+    private void updateGameMap(final Prince prince) {
+        gameMap.update(getPrincePos(), prince);
+        final StepStrategy lastStrategy = getHistory().lastElement();
         if (lastStrategy != null) {
             int expectedHealth = lastStrategy.getPrince().getHealth();
-            if (Utils.isHeal(lastStrategy.getGame().getAction()) && lastStrategy.getPrince().getHealth() < lastStrategy.getPrince().getMaxHealth()) {
+            if (Utils.isHeal(lastStrategy.getGame().getStepAction()) && lastStrategy.getPrince().getHealth() < lastStrategy.getPrince().getMaxHealth()) {
                 expectedHealth++;
             }
-            int damage = expectedHealth - prince.getHealth();
-            levelMap.updateFieldDamage(getPrincePos(), damage);
-            Log.fine("-- damage : " + damage);
+            final int damage = expectedHealth - prince.getHealth();
+            gameMap.updateDamage(getPrincePos(), damage);
+            Log.fine("- damage: " + damage);
         }
     }
 
     @Override
     protected Object clone() {
-        return clone(false);
+        return clone(stepStrategy);
     }
 
-    public Game clone(boolean initialize) {
+    public Game clone(final StepStrategy stepStrategy) {
         try {
-            Game clone = (Game) super.clone();
+            final Game clone = (Game) super.clone();
             clone.history = new GameHistory(history);
-            clone.levelMap = levelMap.clone();
-            if (initialize) {
-                clone.initialize();
-            }
+            clone.gameMap = gameMap.clone();
+            clone.stepStrategy = stepStrategy;
+            // clone.prince = prince.clone();
             return clone;
-        } catch (CloneNotSupportedException e) {
+        } catch (final CloneNotSupportedException e) {
             e.printStackTrace();
             return null;
         }

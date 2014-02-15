@@ -6,4 +6,8 @@ public enum EDirection {
     public EDirection opposite() {
         return this == FWD ? BKW : FWD;
     }
+
+    public static EDirection valueOf(int distance) {
+        return distance < 0 ? BKW : distance > 0 ? FWD : null;
+    }
 }

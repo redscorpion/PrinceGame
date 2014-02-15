@@ -1,53 +1,61 @@
-/***************************************************************************************************
- * Copyright 2013 TeliaSonera. All rights reserved.
- **************************************************************************************************/
 package persia.obstacles;
 
+import persia.simulator.TestEquipment;
 import persia.simulator.TestGame;
 import persia.simulator.TestObstacle;
-import cz.tieto.princegame.common.gameobject.Equipment;
-import cz.tieto.princegame.common.gameobject.Obstacle;
 
-public class Chopper implements Obstacle, TestObstacle {
+public final class Chopper extends TestObstacle {
 
-    private boolean closing = true;
-    private boolean opening = false;
+    private enum State {
+        OPENING, CLOSING, CLOSED;
 
-    public String getProperty(String arg0) {
-        if ("name".equals(arg0)) {
-            return getName();
+        public State next() {
+            return State.values()[(ordinal() + 1) % State.values().length];
         }
+    };
+
+    private State state = State.CLOSED;
+
+    @Override
+    public String getProperty(final String arg0) {
         if ("closing".equals(arg0)) {
-            return "" + closing;
+            return "" + isClosing();
         }
         if ("opening".equals(arg0)) {
-            return "" + opening;
+            return "" + isOpening();
         }
-        return null;
+        return super.getProperty(arg0);
     }
 
+    private boolean isOpening() {
+        return State.OPENING == state;
+    }
+
+    private boolean isClosing() {
+        return State.CLOSING == state;
+    }
+
+    @Override
     public String getName() {
         return "chopper";
-    }
-
-    public int getId() {
-        return System.identityHashCode(this);
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean walkTo(TestGame game) {
-        game.doDamageToPrince(getName(), "walk to", 2);
+    @Override
+    protected boolean walkTo(final TestGame game) {
+        doDamageToPrince(game, getName(), "walk to", 2);
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean jumpOver(TestGame game) {
-        if (!opening || closing) {
-            game.doDamageToPrince(getName(), "jump over", 2);
+    @Override
+    protected boolean jumpOver(final TestGame game) {
+        if (!isOpening() || isClosing()) {
+            doDamageToPrince(game, getName(), "jump over", 2);
         }
         return true;
     }
@@ -55,14 +63,16 @@ public class Chopper implements Obstacle, TestObstacle {
     /**
      * {@inheritDoc}
      */
-    public void nextTurn(TestGame game) {
-        closing = !closing;
-        opening = !opening;
+    @Override
+    protected void nextTurn(final TestGame game) {
+        state = state.next();
     }
 
     /**
      * {@inheritDoc}
      */
-    public void useEquipment(TestGame game, Equipment equipment) {
+    @Override
+    protected void useEquipment(final TestGame game, final TestEquipment equipment) {
     }
+
 }

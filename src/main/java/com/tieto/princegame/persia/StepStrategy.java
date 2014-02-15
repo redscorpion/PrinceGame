@@ -1,7 +1,8 @@
 package com.tieto.princegame.persia;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.logging.Logger;
 
 import com.tieto.princegame.persia.PersiaStrategy.ActionStrategy;
@@ -20,48 +21,44 @@ import cz.tieto.princegame.common.gameobject.Field;
 import cz.tieto.princegame.common.gameobject.Obstacle;
 import cz.tieto.princegame.common.gameobject.Prince;
 
-public class TurnStrategy {
+public class StepStrategy implements Cloneable {
 
-    private static final Logger Log = Logger.getLogger(TurnStrategy.class.getName());
+    private static final Logger Log = Logger.getLogger(StepStrategy.class.getName());
 
-    private final Prince prince;
-    private final Field field;
-    private final List<ActionStrategy> strategies;
-    private final Game game;
-
+    private List<ActionStrategy> strategies;
+    private Game game;
     private EDirection stepDirection;
-    private Iterator<ActionStrategy> currentStrategy;
+    private ListIterator<ActionStrategy> strategiesChain;
+    private boolean turnBack;
 
-    public TurnStrategy(Prince prince, Game game, List<ActionStrategy> strategies) {
-        this.prince = prince;
+    public StepStrategy(final Game game, final List<ActionStrategy> strategies) {
         this.game = game;
-        this.stepDirection = game.getDirection();
+        stepDirection = game.getStepDirection();
         this.strategies = strategies;
-        this.currentStrategy = strategies.iterator();
-        this.field = prince.look(0);
+        strategiesChain = strategies.listIterator();
     }
 
     public Field getField() {
-        return field;
+        return game.getPrince().look(0);
     }
 
     public Prince getPrince() {
-        return prince;
+        return game.getPrince();
     }
 
     public EDirection getStepDirection() {
-        return this.stepDirection;
+        return stepDirection;
     }
 
-    public void setStepDirection(EDirection direction) {
-        this.stepDirection = direction;
+    public void setStepDirection(final EDirection direction) {
+        stepDirection = direction;
     }
 
     public Game getGame() {
         return game;
     }
 
-    public Field getNextStepField(Prince prince) {
+    public Field getNextStepField(final Prince prince) {
         Field next;
         switch (stepDirection) {
         case FWD:
@@ -76,15 +73,23 @@ public class TurnStrategy {
         return next;
     }
 
+    public boolean isTurnBack() {
+        return turnBack;
+    }
+
+    public void setTurnBack(final boolean turnBack) {
+        this.turnBack = turnBack;
+    }
+
     public Action evaluate() {
-        currentStrategy = strategies.iterator();
+        strategiesChain = strategies.listIterator();
         return evaluateNext();
     }
 
     public Action evaluateNext() {
-        if (currentStrategy.hasNext()) {
-            ActionStrategy next = currentStrategy.next();
-            return next.getAction(prince, this);
+        if (strategiesChain.hasNext()) {
+            final ActionStrategy next = strategiesChain.next();
+            return next.getAction(game.getPrince(), this);
         }
         return null;
     }
@@ -102,15 +107,15 @@ public class TurnStrategy {
         }
     }
 
-    public Action jump(boolean shouldBeSafe) {
+    public Action jump(final boolean shouldBeSafe) {
         switch (stepDirection) {
         case FWD:
-            if (!shouldBeSafe && getGame().getLevelMap().getMapField(getGame().getPrincePos()) == null) {
+            if (!shouldBeSafe && getGame().getGameMap().getGameField(getGame().getPrincePos()) == null) {
                 getGame().resetLevelMap();
             }
             return new JumpForward();
         case BKW:
-            if (!shouldBeSafe && getGame().getLevelMap().getMapField(getGame().getPrincePos()) == null) {
+            if (!shouldBeSafe && getGame().getGameMap().getGameField(getGame().getPrincePos()) == null) {
                 getGame().resetLevelMap();
             }
             return new JumpBackward();
@@ -127,7 +132,7 @@ public class TurnStrategy {
         return new Heal();
     }
 
-    public Action use(Equipment eq, Obstacle obstacle) {
+    public Action use(final Equipment eq, final Obstacle obstacle) {
         Log.fine("-- use " + eq.getName() + " on " + obstacle.getName());
         return new Use(eq, obstacle);
     }
@@ -138,6 +143,31 @@ public class TurnStrategy {
 
     public void switchStepDirection() {
         setStepDirection(getStepDirection().opposite());
+    }
+
+    @Override
+    public StepStrategy clone() {
+        return clone(strategies, strategiesChain);
+    }
+
+    public StepStrategy clone(final List<ActionStrategy> strategies) {
+        return clone(strategies, strategies.listIterator());
+    }
+
+    private StepStrategy clone(final List<ActionStrategy> strategies, final ListIterator<ActionStrategy> strategiesChain) {
+        try {
+            final StepStrategy clone = (StepStrategy) super.clone();
+            clone.game = game.clone(clone);
+            clone.strategies = new ArrayList<PersiaStrategy.ActionStrategy>(strategies);
+            clone.strategiesChain = clone.strategies.listIterator();
+            while (clone.strategiesChain.nextIndex() < strategiesChain.nextIndex()) {
+                clone.strategiesChain.next();
+            }
+            return clone;
+        } catch (final CloneNotSupportedException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

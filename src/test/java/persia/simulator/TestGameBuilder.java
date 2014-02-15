@@ -1,57 +1,48 @@
-/***************************************************************************************************
- * Copyright 2013 TeliaSonera. All rights reserved.
- **************************************************************************************************/
 package persia.simulator;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import cz.tieto.princegame.common.gameobject.Equipment;
-import cz.tieto.princegame.common.gameobject.Obstacle;
-
-/**
- * TestSceneBuilder
- * 
- * @author <a href="mailto:kamil.siroky@teliasonera.com">Kamil Siroky</a>
- * 
- */
 public class TestGameBuilder {
     private Integer princePos;
     private Integer princeHealth;
     private Integer gatePos;
-    private Map<Integer, Obstacle> obstacles = new HashMap<Integer, Obstacle>();
-    private Map<Integer, Equipment> equipments = new HashMap<Integer, Equipment>();
+    private final Map<Integer, TestObstacle> obstacles = new HashMap<Integer, TestObstacle>();
+    private final Map<Integer, TestEquipment> equipments = new HashMap<Integer, TestEquipment>();
 
     private int levelLength;
 
-    public static TestGameBuilder buildGame() {
+    private TestGameBuilder() {
+    }
+
+    public static TestGameBuilder getBuilder() {
         return new TestGameBuilder();
     }
 
-    public TestGameBuilder withPrinceAtPossition(int pos) {
-        this.princePos = pos;
+    public TestGameBuilder setPrincePossition(final int pos) {
+        princePos = pos;
         levelLength = Math.max(levelLength, pos + 1);
         return this;
     }
 
-    public TestGameBuilder withPrinceHealth(int health) {
-        this.princeHealth = health;
+    public TestGameBuilder setPrinceHealth(final int health) {
+        princeHealth = health;
         return this;
     }
 
-    public TestGameBuilder withGateAt(int pos) {
-        this.gatePos = pos;
+    public TestGameBuilder setGateAt(final int pos) {
+        gatePos = pos;
         levelLength = Math.max(levelLength, pos + 1);
         return this;
     }
 
-    public TestGameBuilder addObstacle(Obstacle obstacle, int pos) {
+    public TestGameBuilder addObstacle(final TestObstacle obstacle, final int pos) {
         obstacles.put(pos, obstacle);
         levelLength = Math.max(levelLength, pos + 1);
         return this;
     }
 
-    public TestGameBuilder addEquipment(Equipment obstacle, int pos) {
+    public TestGameBuilder addEquipment(final TestEquipment obstacle, final int pos) {
         equipments.put(pos, obstacle);
         levelLength = Math.max(levelLength, pos + 1);
         return this;
@@ -62,8 +53,8 @@ public class TestGameBuilder {
         assert princePos != null;
         assert gatePos != null;
 
-        TestPrince prince = new TestPrince(princeHealth, princeHealth);
-        TestGame game = new TestGame(prince, levelLength, princePos, gatePos, obstacles, equipments);
+        final TestPrince prince = new TestPrince(princeHealth, princeHealth);
+        final TestGame game = new TestGame(prince, levelLength, princePos, gatePos, obstacles, equipments);
 
         return game;
     }

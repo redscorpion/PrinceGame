@@ -1,6 +1,3 @@
-/***************************************************************************************************
- * Copyright 2013 TeliaSonera. All rights reserved.
- **************************************************************************************************/
 package persia.simulator;
 
 import java.util.ArrayList;
@@ -12,41 +9,46 @@ import cz.tieto.princegame.common.gameobject.Equipment;
 import cz.tieto.princegame.common.gameobject.Field;
 import cz.tieto.princegame.common.gameobject.Prince;
 
-/**
- * TestPrince
- * 
- * @author <a href="mailto:kamil.siroky@teliasonera.com">Kamil Siroky</a>
- * 
- */
 public final class TestPrince implements Prince, Cloneable {
 
+    private final int id;
     private int health;
-    private int maxHealth;
+    private final int maxHealth;
     private List<Equipment> inventory = new ArrayList<Equipment>();
     private TestGame game;
 
-    public TestPrince(int health, int maxHealth) {
+    public TestPrince(final int health, final int maxHealth) {
+        id = System.identityHashCode(this);
         this.health = health;
         this.maxHealth = maxHealth;
     }
 
     public int getId() {
-        return System.identityHashCode(this);
+        return id;
     }
 
     public String getName() {
         return "prince";
     }
 
-    public String getProperty(String arg0) {
-        throw new UnsupportedOperationException();
+    public String getProperty(final String arg0) {
+        if ("name".equals(arg0)) {
+            return getName();
+        }
+        if ("health".equals(arg0)) {
+            return "" + health;
+        } else if ("maxHealth".equals(arg0)) {
+            return "" + maxHealth;
+        } else {
+            return null;
+        }
     }
 
     public int getHealth() {
         return health;
     }
 
-    public void setHealth(int health) {
+    void setHealth(final int health) {
         this.health = Math.max(0, Math.min(maxHealth, health));
     }
 
@@ -54,7 +56,7 @@ public final class TestPrince implements Prince, Cloneable {
         return Collections.unmodifiableList(inventory);
     }
 
-    public void addToInventory(Equipment equipment) {
+    void addToInventory(final Equipment equipment) {
         if (equipment == null) {
             throw new IllegalArgumentException();
         }
@@ -65,14 +67,14 @@ public final class TestPrince implements Prince, Cloneable {
         return maxHealth;
     }
 
-    public Field look(int arg0) {
+    public Field look(final int arg0) {
         if (Math.abs(arg0) <= 1) {
             return game.getLookAt(arg0);
         }
         throw new IllegalArgumentException();
     }
 
-    void setGame(TestGame game) {
+    void setGame(final TestGame game) {
         this.game = game;
     }
 
@@ -80,17 +82,17 @@ public final class TestPrince implements Prince, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    public TestPrince clone() {
         return clone(game.clone());
     }
 
-    protected TestPrince clone(TestGame game) {
+    protected TestPrince clone(final TestGame game) {
         try {
-            TestPrince clone = (TestPrince) super.clone();
+            final TestPrince clone = (TestPrince) super.clone();
             clone.inventory = new ArrayList<Equipment>(inventory);
             clone.game = game;
             return clone;
-        } catch (CloneNotSupportedException e) {
+        } catch (final CloneNotSupportedException e) {
             e.printStackTrace();
             return null;
         }

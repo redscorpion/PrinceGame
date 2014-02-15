@@ -4,31 +4,31 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-public class GameHistory extends Vector<TurnStrategy> {
+public class GameHistory extends Vector<StepStrategy> {
 
     private static final long serialVersionUID = -3266950713047993275L;
 
     public GameHistory() {
     }
 
-    public GameHistory(Collection<TurnStrategy> history) {
+    public GameHistory(final Collection<StepStrategy> history) {
         super(history);
     }
 
     @Override
-    public synchronized TurnStrategy lastElement() {
+    public synchronized StepStrategy lastElement() {
         try {
             return super.lastElement();
-        } catch (NoSuchElementException nse) {
+        } catch (final NoSuchElementException nse) {
             return null;
         }
     }
 
     @Override
-    public synchronized TurnStrategy firstElement() {
+    public synchronized StepStrategy firstElement() {
         try {
             return super.firstElement();
-        } catch (NoSuchElementException nse) {
+        } catch (final NoSuchElementException nse) {
             return null;
         }
     }

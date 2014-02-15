@@ -1,48 +1,34 @@
-/***************************************************************************************************
- * Copyright 2013 TeliaSonera. All rights reserved.
- **************************************************************************************************/
 package persia.obstacles;
 
+import persia.equipment.Matches;
+import persia.simulator.TestEquipment;
 import persia.simulator.TestGame;
 import persia.simulator.TestObstacle;
-import cz.tieto.princegame.common.gameobject.Equipment;
-import cz.tieto.princegame.common.gameobject.Obstacle;
 
-public class Thornbush implements Obstacle, TestObstacle {
+public final class Thornbush extends TestObstacle {
 
     boolean burnt = false;
 
-    public String getProperty(String arg0) {
-        if ("name".equals(arg0)) {
-            return getName();
-        }
+    @Override
+    public String getProperty(final String arg0) {
         if ("burnt".equals(arg0)) {
             return "" + burnt;
         }
-        return null;
+        return super.getProperty(arg0);
     }
 
+    @Override
     public String getName() {
         return "thornbush";
     }
 
-    public int getId() {
-        return System.identityHashCode(this);
-    }
-
-    /**
-     * @param b
-     */
-    public void setBurnt(boolean b) {
-        this.burnt = b;
-    }
-
     /**
      * {@inheritDoc}
      */
-    public boolean walkTo(TestGame game) {
+    @Override
+    protected boolean walkTo(final TestGame game) {
         if (!burnt) {
-            game.doDamageToPrince(getName(), "walk to", 2);
+            doDamageToPrince(game, getName(), "walk to", 2);
         }
         return burnt;
     }
@@ -50,9 +36,10 @@ public class Thornbush implements Obstacle, TestObstacle {
     /**
      * {@inheritDoc}
      */
-    public boolean jumpOver(TestGame game) {
+    @Override
+    protected boolean jumpOver(final TestGame game) {
         if (!burnt) {
-            game.doDamageToPrince(getName(), "jump over", 2);
+            doDamageToPrince(game, getName(), "jump over", 2);
         }
         return burnt;
     }
@@ -60,15 +47,18 @@ public class Thornbush implements Obstacle, TestObstacle {
     /**
      * {@inheritDoc}
      */
-    public void nextTurn(TestGame game) {
+    @Override
+    protected void nextTurn(final TestGame game) {
     }
 
     /**
      * {@inheritDoc}
      */
-    public void useEquipment(TestGame game, Equipment equipment) {
-        if ("matches".equals(equipment.getName())) {
-           setBurnt(true);
-       }
+    @Override
+    protected void useEquipment(final TestGame game, final TestEquipment equipment) {
+        if (Matches.NAME.equals(equipment.getName())) {
+            burnt = true;
+        }
     }
+
 }

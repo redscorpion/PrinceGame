@@ -3,8 +3,6 @@
  **************************************************************************************************/
 package com.tieto.princegame.persia.domain;
 
-import com.tieto.princegame.persia.Utils;
-
 import cz.tieto.princegame.common.gameobject.Obstacle;
 
 public enum EObstacle {
@@ -15,7 +13,7 @@ public enum EObstacle {
     private int attackRange;
     private int[] attack;
 
-    private EObstacle(String name, int attackRange, int... attack) {
+    private EObstacle(final String name, final int attackRange, final int... attack) {
         this.name = name;
         this.attackRange = attackRange;
         this.attack = attack;
@@ -26,6 +24,7 @@ public enum EObstacle {
     }
 
     public int getAttack(int distance) {
+        distance = Math.abs(distance);
         if (distance > attackRange) {
             return 0;
         }
@@ -36,16 +35,16 @@ public enum EObstacle {
         return attackRange;
     }
 
-    public boolean equalsTo(Obstacle ob) {
+    public boolean equalsTo(final Obstacle ob) {
         return ob != null && getName().equals(ob.getName());
     }
 
-    public static EObstacle valueOf(Obstacle ob) {
+    public static EObstacle valueOf(final Obstacle ob) {
         if (ob == null) {
             return null;
         }
 
-        for (EObstacle eObstacle : values()) {
+        for (final EObstacle eObstacle : values()) {
             if (eObstacle.getName().equals(ob.getName())) {
                 return eObstacle;
             }
@@ -53,16 +52,55 @@ public enum EObstacle {
         return null;
     }
 
-    public static boolean isDisabled(Obstacle obstacle) {
+    public static boolean isAlive(final Obstacle obstacle) {
+        return obstacle != null && !Boolean.parseBoolean(obstacle.getProperty("dead"));
+    }
+
+    public static boolean isAliveEnemy(final Obstacle obstacle) {
+        return obstacle != null && isEnemy(obstacle) && isAlive(obstacle);
+    }
+
+    public static boolean isDeadEnemy(final Obstacle obstacle) {
+        return obstacle != null && isEnemy(obstacle) && !isAlive(obstacle);
+    }
+
+    public static int getHealth(final Obstacle obstacle) {
+        return obstacle != null ? Integer.parseInt(obstacle.getProperty("health")) : 0;
+    }
+
+    public static int getAttack(final Obstacle obstacle, final int distance) {
+        return getAttack(EObstacle.valueOf(obstacle), distance);
+    }
+
+    public static int getAttack(final EObstacle obstacle, final int distance) {
+        return obstacle != null ? obstacle.getAttack(distance) : 0;
+    }
+
+    public static int getAttackRange(final Obstacle obstacle) {
+        return getAttackRange(EObstacle.valueOf(obstacle));
+    }
+
+    public static int getAttackRange(final EObstacle obstacle) {
+        return obstacle != null ? obstacle.getAttackRange() : 0;
+    }
+
+    public static boolean isEnemy(final Obstacle obstacle) {
+        return isEnemy(EObstacle.valueOf(obstacle));
+    }
+
+    public static boolean isEnemy(final EObstacle obstacle) {
+        return obstacle != null && obstacle.getAttackRange() > 0;
+    }
+
+    public static boolean isDisabled(final Obstacle obstacle) {
         if (obstacle == null) {
             return true;
         }
 
-        if (Utils.isEnemy(obstacle)) {
-            return !Utils.isAlive(obstacle);
+        if (isEnemy(obstacle)) {
+            return !isAlive(obstacle);
         }
 
-        // TODO refactor
         if (EObstacle.THORNBUSH.equalsTo(obstacle)) {
             return Boolean.parseBoolean(obstacle.getProperty("burnt"));
         }

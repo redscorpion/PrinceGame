@@ -1,11 +1,7 @@
-/***************************************************************************************************
- * Copyright 2013 TeliaSonera. All rights reserved.
- **************************************************************************************************/
 package persia.simulator;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import cz.tieto.princegame.common.action.Action;
 import cz.tieto.princegame.common.action.EnterGate;
@@ -19,58 +15,69 @@ import cz.tieto.princegame.common.action.Use;
 import cz.tieto.princegame.common.gameobject.Equipment;
 import cz.tieto.princegame.common.gameobject.Field;
 import cz.tieto.princegame.common.gameobject.Obstacle;
-import cz.tieto.princegame.common.gameobject.Prince;
 
-public final class TestGame implements Cloneable {
+public final class TestGame extends TestScenario implements Cloneable {
 
-    private TestPrince prince;
-    private int princePos;
-    private int gatePos;
-    private int levelLength;
-    private Map<Integer, Obstacle> obstacles;
-    private Map<Integer, Equipment> equipments;
-
-    private Map<Integer, Field> fields = new HashMap<Integer, Field>();
+    protected TestPrince prince;
 
     private boolean gameOver;
 
-    public TestGame(TestPrince prince, int levelLength, int princePos, int gatePos) {
-        this(prince, levelLength, princePos, gatePos, new HashMap<Integer, Obstacle>(), new HashMap<Integer, Equipment>());
+    public TestGame(final TestPrince prince, final int levelLength, final int princePos, final int gatePos) {
+        this(prince, levelLength, princePos, gatePos, new HashMap<Integer, TestObstacle>(), new HashMap<Integer, TestEquipment>());
     }
 
-    public TestGame(TestPrince prince, int levelLength, Integer princePos, Integer gatePos, Map<Integer, Obstacle> obstacles, Map<Integer, Equipment> equipments) {
+    public TestGame(final TestPrince prince, final int levelLength, final Integer princePos, final Integer gatePos, final Map<Integer, TestObstacle> obstacles,
+            final Map<Integer, TestEquipment> equipments) {
+        super(levelLength, princePos, gatePos, obstacles, equipments);
         this.prince = prince;
-        this.levelLength = levelLength;
-        this.princePos = princePos;
-        this.gatePos = gatePos;
-        this.equipments = equipments;
-        this.obstacles = obstacles;
-        prince.setGame(this);
+        this.prince.setGame(this);
     }
 
-    public void addEquipment(int i, Equipment equipment) {
-        equipments.put(i, equipment);
-    }
-
-    public void addObstacle(int pos, Obstacle obstacle) {
-        obstacles.put(pos, obstacle);
+    public TestPrince getPrince() {
+        return prince.clone();
     }
 
     private void doGrabEquipment() {
         if (equipments.get(princePos) != null) {
-            Equipment removed = equipments.remove(princePos);
+            final Equipment removed = equipments.remove(princePos);
             prince.addToInventory(removed);
         }
     }
 
-    private void doUseEquimpent(Equipment equipment, Obstacle target) {
-        if (!prince.getInventory().contains(equipment)) {
-            throw new IllegalArgumentException();
+    private void doUseEquimpent(final Equipment equipment, final Obstacle target) {
+        if (equipment == null || target == null) {
+            throw new IllegalArgumentException("null");
         }
 
-        int distance = getDistanceFromPrince(target);
+        TestEquipment testEquipment = null;
+
+        for (final Equipment eq : prince.getInventory()) {
+            if (eq.equals(equipment)) {
+                testEquipment = (TestEquipment) eq;
+                break;
+            }
+        }
+
+        if (testEquipment == null) {
+            throw new IllegalArgumentException(equipment.toString());
+        }
+
+        TestObstacle testTarget = null;
+
+        for (final Obstacle obstacle : obstacles.values()) {
+            if (obstacle.equals(target)) {
+                testTarget = (TestObstacle) obstacle;
+                break;
+            }
+        }
+
+        if (testTarget == null) {
+            throw new IllegalArgumentException(target.toString());
+        }
+
+        final int distance = testTarget.getDistanceFromPrince(this);
         if (Math.abs(distance) <= 1) {
-            ((TestObstacle) target).useEquipment(this, equipment);
+            testTarget.useEquipment(this, testEquipment);
         }
     }
 
@@ -81,83 +88,54 @@ public final class TestGame implements Cloneable {
         }
     }
 
-    public int getLength() {
-        return levelLength;
-    }
-
-    public int getGatePos() {
-        return gatePos;
-    }
-
-    public Prince getPrince() {
-        return prince;
-    }
-
-    public int getPrincePos() {
-        return princePos;
-    }
-
-    public Equipment getEquipment(int pos) {
-        return equipments.get(pos);
-    }
-
-    public Obstacle getObstacle(int pos) {
-        return obstacles.get(pos);
-    }
-
-    public boolean isGate(int pos) {
-        return gatePos == pos;
-    }
-
-    public Field getLookAt(int num) {
-        int lookPos = princePos + num;
+    Field getLookAt(final int num) {
+        final int lookPos = princePos + num;
 
         if (lookPos < 0 || lookPos >= getLength()) {
             return null;
         }
 
-        Field field = fields.get(lookPos);
-        if (field == null) {
-            field = new TestField(lookPos, this);
-            fields.put(num, field);
-        }
-
-        return field;
+        return new TestField(lookPos, this);
     }
 
-    public TestGame doStep(Action step) {
+    public TestGame doStep(final Action step) {
         if (gameOver) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("game ower");
         }
 
-        TestGame gameClone = clone();
-        if (step instanceof MoveForward) {
-            gameClone.doMoveForward();
-        } else if (step instanceof MoveBackward) {
-            gameClone.doMoveBackward();
-        } else if (step instanceof JumpForward) {
-            gameClone.doJumpForward();
-        } else if (step instanceof JumpBackward) {
-            gameClone.doJumpBackward();
-        } else if (step instanceof Grab) {
-            gameClone.doGrabEquipment();
-        } else if (step instanceof Use) {
-            gameClone.doUseEquimpent(((Use) step).getEquipment(), ((Use) step).getObstacle());
-        } else if (step instanceof Heal) {
-            gameClone.doHeal();
-        } else if (step instanceof EnterGate) {
-            gameClone.doEnterGate();
-        } else {
-            throw new UnsupportedOperationException();
-        }
-        gameClone.ememyTurn();
+        final TestGame newScenario = clone();
+
+        newScenario.princeTurn(step);
+        newScenario.ememyTurn();
 
         if (getPrince().getHealth() <= 0) {
-            gameOver = true;
+            newScenario.gameOver = true;
             System.out.println("PRINCE DEAD");
         }
 
-        return gameClone;
+        return newScenario;
+    }
+
+    private void princeTurn(final Action step) {
+        if (MoveForward.class == step.getClass()) {
+            doMoveForward();
+        } else if (MoveBackward.class == step.getClass()) {
+            doMoveBackward();
+        } else if (JumpForward.class == step.getClass()) {
+            doJumpForward();
+        } else if (JumpBackward.class == step.getClass()) {
+            doJumpBackward();
+        } else if (Grab.class == step.getClass()) {
+            doGrabEquipment();
+        } else if (Use.class == step.getClass()) {
+            doUseEquimpent(((Use) step).getEquipment(), ((Use) step).getObstacle());
+        } else if (Heal.class == step.getClass()) {
+            doHeal();
+        } else if (EnterGate.class == step.getClass()) {
+            doEnterGate();
+        } else {
+            throw new UnsupportedOperationException(step.getClass().getSimpleName());
+        }
     }
 
     private void doHeal() {
@@ -165,12 +143,12 @@ public final class TestGame implements Cloneable {
     }
 
     private void doJumpBackward() {
-        TestObstacle skippedObstacle = (TestObstacle) obstacles.get(princePos - 1);
+        final TestObstacle skippedObstacle = obstacles.get(princePos - 1);
         if (princePos - 1 < 0 || (skippedObstacle != null && !skippedObstacle.jumpOver(this))) {
             return;
         }
 
-        TestObstacle targetObstacle = (TestObstacle) obstacles.get(princePos - 2);
+        final TestObstacle targetObstacle = obstacles.get(princePos - 2);
         if (princePos - 2 >= 0 && (targetObstacle == null || targetObstacle.walkTo(this))) {
             princePos -= 2;
             return;
@@ -183,19 +161,19 @@ public final class TestGame implements Cloneable {
     }
 
     private void doMoveBackward() {
-        TestObstacle targetObstacle = (TestObstacle) obstacles.get(princePos - 1);
+        final TestObstacle targetObstacle = obstacles.get(princePos - 1);
         if (princePos - 1 >= 0 && (targetObstacle == null || targetObstacle.walkTo(this))) {
             princePos -= 1;
         }
     }
 
     private void doJumpForward() {
-        TestObstacle skippedObstacle = (TestObstacle) obstacles.get(princePos + 1);
+        final TestObstacle skippedObstacle = obstacles.get(princePos + 1);
         if (princePos + 1 > levelLength - 1 || (skippedObstacle != null && !skippedObstacle.jumpOver(this))) {
             return;
         }
 
-        TestObstacle targetObstacle = (TestObstacle) obstacles.get(princePos + 2);
+        final TestObstacle targetObstacle = obstacles.get(princePos + 2);
         if (princePos + 2 <= levelLength - 1 && (targetObstacle == null || targetObstacle.walkTo(this))) {
             princePos += 2;
             return;
@@ -208,35 +186,24 @@ public final class TestGame implements Cloneable {
     }
 
     private void doMoveForward() {
-        TestObstacle targetObstacle = (TestObstacle) obstacles.get(princePos + 1);
+        final TestObstacle targetObstacle = obstacles.get(princePos + 1);
         if (princePos + 1 <= levelLength - 1 && (targetObstacle == null || targetObstacle.walkTo(this))) {
             princePos += 1;
         }
     }
 
     private void ememyTurn() {
-        for (Map.Entry<Integer, Obstacle> entry : obstacles.entrySet()) {
-            if (entry.getValue() instanceof TestObstacle) {
-                TestObstacle enemy = (TestObstacle) entry.getValue();
-                enemy.nextTurn(this);
-            }
+        for (final TestObstacle enemy : obstacles.values()) {
+            enemy.nextTurn(this);
         }
     }
 
-    public int getDistanceFromPrince(Obstacle target) {
-        for (Entry<Integer, Obstacle> entry : obstacles.entrySet()) {
-            if (entry.getValue() == target) {
-                return entry.getKey() - princePos;
-            }
+    void doDamageToPrince(final String who, final String reason, final int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("" + amount);
         }
-
-        return Integer.MAX_VALUE;
-    }
-
-    public void doDamageToPrince(String who, String reason, int amount) {
         prince.setHealth(prince.getHealth() - amount);
-        System.out.println("prince received " + amount + " damage from " + who + " because '" + reason + "'");
-
+        System.out.println(-amount + " damage to prince from '" + who + "' because '" + reason + "'");
     }
 
     /**
@@ -244,20 +211,20 @@ public final class TestGame implements Cloneable {
      */
     @Override
     protected TestGame clone() {
-        try {
-            TestGame clone = (TestGame) super.clone();
-            clone.equipments = new HashMap<Integer, Equipment>(equipments);
-            clone.obstacles = new HashMap<Integer, Obstacle>(obstacles);
-            clone.fields = new HashMap<Integer, Field>();
-            clone.prince = prince.clone(clone);
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            return null;
-        }
+        final TestGame clone = (TestGame) super.clone();
+        clone.prince = prince.clone(clone);
+        return clone;
     }
 
     public boolean isOwer() {
         return gameOver;
+    }
+
+    Map<Integer, TestObstacle> getObstacles() {
+        return obstacles;
+    }
+
+    Map<Integer, TestEquipment> getEquipments() {
+        return equipments;
     }
 }

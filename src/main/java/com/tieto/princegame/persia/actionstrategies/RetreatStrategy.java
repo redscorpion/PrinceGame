@@ -3,7 +3,7 @@ package com.tieto.princegame.persia.actionstrategies;
 import java.util.logging.Logger;
 
 import com.tieto.princegame.persia.PersiaStrategy.ActionStrategy;
-import com.tieto.princegame.persia.TurnStrategy;
+import com.tieto.princegame.persia.StepStrategy;
 import com.tieto.princegame.persia.Utils;
 import com.tieto.princegame.persia.domain.EDirection;
 
@@ -16,81 +16,101 @@ public class RetreatStrategy implements ActionStrategy {
 
     private static final double RETREAT_HEAL_PCT = 0.333;
 
-    public Action getAction(Prince prince, TurnStrategy turnStrategy) {
+    public Action getAction(final Prince prince, final StepStrategy stepStrategy) {
 
-        if (Utils.isSafeToHealHere(turnStrategy)) {
+        if (Utils.isSafeToHealHere(stepStrategy)) {
             Log.fine("-- it should be safe to heal here");
 
-            if (turnStrategy.getGame().isRetreat()) {
-                stopRetreat(turnStrategy);
+            if (stepStrategy.getGame().isRetreat()) {
+                stopRetreat(stepStrategy);
             }
 
-            return turnStrategy.evaluateNext();
+            return stepStrategy.evaluateNext();
         } else {
             Log.fine("-- it is not safe to heal here");
-            EDirection enemyDirection = Utils.getAttackingEnemyDirection(turnStrategy);
+            final EDirection enemyDirection = Utils.getAttackingEnemyDirection(stepStrategy);
             if (enemyDirection == null) {
                 Log.fine("-- and i don't see the enemy");
             }
-            if (shouldRetreat(prince, turnStrategy, enemyDirection != null ? enemyDirection.opposite() : null)) {
+            final RetreatAnalysisResult retreatResult = shouldRetreat(prince, stepStrategy, enemyDirection != null ? enemyDirection.opposite() : null);
+            if (retreatResult.shouldRetreat) {
                 Log.fine("-- low health");
-                Integer damage = turnStrategy.getGame().getLevelMap().getDamageAt(turnStrategy.getGame().getPrincePos());
+                final Integer damage = stepStrategy.getGame().getGameMap().getDamageAt(stepStrategy.getGame().getPrincePos());
                 if (damage != null && damage > prince.getHealth()) {
                     Log.fine("-- it's hard to survive here, damage is too high!");
                 }
 
-                if (enemyDirection == null) {
-                    TurnStrategy lastStrategy = turnStrategy.getGame().getHistory().lastElement();
+                if (retreatResult.retreatDirection == null) {
+                    final StepStrategy lastStrategy = stepStrategy.getGame().getHistory().lastElement();
                     if (lastStrategy != null) {
                         if (lastStrategy.getGame().isRetreat()) {
                             Log.fine("-- continue in retreat");
-                            enemyDirection = lastStrategy.getStepDirection().opposite();
+                            retreatResult.retreatDirection = lastStrategy.getStepDirection();
                         } else {
                             Log.fine("-- turn back");
-                            enemyDirection = lastStrategy.getStepDirection();
+                            retreatResult.retreatDirection = lastStrategy.getStepDirection().opposite();
                         }
                     } else {
                         Log.fine("-- i'm totally lost, turn back");
-                        enemyDirection = turnStrategy.getStepDirection();
+                        retreatResult.retreatDirection = stepStrategy.getStepDirection().opposite();
                     }
                 }
-                beginRetreat(turnStrategy, enemyDirection.opposite());
-                Action bestRetreatAction = Utils.getBestRetreatAction(turnStrategy, enemyDirection.opposite());
+
+                beginRetreat(stepStrategy, retreatResult.retreatDirection);
+                if (retreatResult.bestRetreatResult == null) {
+                    retreatResult.bestRetreatResult = Utils.getBestRetreatResult(stepStrategy, retreatResult.retreatDirection);
+                }
+
+                final Action bestRetreatAction = retreatResult.bestRetreatResult.getGame().getStepAction();
+
                 if (Utils.isHeal(bestRetreatAction)) {
                     Log.fine("-- not good, we can't move... only heal!");
-                    return turnStrategy.evaluateNext();
+                    return stepStrategy.evaluateNext();
                 }
                 return bestRetreatAction;
             }
 
-            return turnStrategy.evaluateNext();
+            return stepStrategy.evaluateNext();
         }
     }
 
-    private void beginRetreat(TurnStrategy turnStrategy, EDirection retreatDirection) {
+    private void beginRetreat(final StepStrategy stepStrategy, final EDirection retreatDirection) {
         Log.fine("-- retreat, direction: " + retreatDirection);
-        turnStrategy.getGame().setRetreat(true);
-        turnStrategy.setStepDirection(retreatDirection);
+        stepStrategy.getGame().setRetreat(true);
+        stepStrategy.setStepDirection(retreatDirection);
     }
 
-    private void stopRetreat(TurnStrategy turnStrategy) {
+    private void stopRetreat(final StepStrategy stepStrategy) {
         Log.fine("-- ending retreat");
-        turnStrategy.getGame().setRetreat(false);
+        stepStrategy.getGame().setRetreat(false);
     }
 
-    public boolean shouldRetreat(Prince prince, TurnStrategy turnStrategy, EDirection retreatDirection) {
-        Integer damage = turnStrategy.getGame().getLevelMap().getDamageAt(turnStrategy.getGame().getPrincePos());
-        if (damage != null && retreatDirection != null) {
-            TurnStrategy bestRetreatResult = Utils.getBestRetreatResult(turnStrategy, retreatDirection);
-            int retreatPos = Utils.getRetreatPossition(bestRetreatResult, bestRetreatResult.getGame().getPrincePos());
-            if (turnStrategy.getGame().getPrincePos() != retreatPos) {
-                Integer retreatDamage = bestRetreatResult.getGame().getLevelMap().getDamageAt(retreatPos);
-                if (retreatDamage != null) {
-                    return prince.getHealth() <= damage + retreatDamage;
+    public RetreatAnalysisResult shouldRetreat(final Prince prince, final StepStrategy stepStrategy, final EDirection retreatDirection) {
+        final RetreatAnalysisResult result = new RetreatAnalysisResult();
+        result.retreatDirection = retreatDirection;
+        result.damage = stepStrategy.getGame().getGameMap().getDamageAt(stepStrategy.getGame().getPrincePos());
+        if (result.damage != null && retreatDirection != null) {
+            result.bestRetreatResult = Utils.getBestRetreatResult(stepStrategy, retreatDirection);
+            final int retreatPos = Utils.getRetreatPossition(result.bestRetreatResult, result.bestRetreatResult.getGame().getPrincePos());
+            if (stepStrategy.getGame().getPrincePos() != retreatPos) {
+                result.retreatDamage = result.bestRetreatResult.getGame().getGameMap().getDamageAt(retreatPos);
+                if (result.retreatDamage != null) {
+                    result.shouldRetreat = prince.getHealth() <= result.damage + result.retreatDamage;
+                    return result;
                 }
             }
         }
 
-        return (damage != null && prince.getHealth() <= damage) || prince.getHealth() < Math.ceil(prince.getMaxHealth() * RETREAT_HEAL_PCT);
+        result.shouldRetreat = (result.damage != null && prince.getHealth() <= result.damage)
+                || prince.getHealth() < Math.ceil(prince.getMaxHealth() * RETREAT_HEAL_PCT);
+        return result;
+    }
+
+    private static class RetreatAnalysisResult {
+        private EDirection retreatDirection;
+        private Integer damage;
+        private Integer retreatDamage;
+        private StepStrategy bestRetreatResult;
+        private boolean shouldRetreat;
     }
 }

@@ -1,17 +1,16 @@
-package landscape;
+package MiAl.landscape;
 
 import cz.tieto.princegame.common.gameobject.Obstacle;
-
 
 public class Knight implements Obstacle {
 
     private int health;
 
-    public Knight(int health) {
+    public Knight(final int health) {
         this.health = health;
     }
 
-    public String getProperty(String arg0) {
+    public String getProperty(final String arg0) {
         if ("name".equals(arg0)) {
             return getName();
         }
@@ -39,12 +38,11 @@ public class Knight implements Obstacle {
     /**
      * @param i
      */
-    public void setHealth(int i) {
-        this.health = i;
+    public void setHealth(final int i) {
+        health = i;
     }
-    
-    public void fight(){
-    	health -=2;
+
+    public void fight() {
+        health -= 2;
     }
 }
-

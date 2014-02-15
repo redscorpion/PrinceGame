@@ -1,6 +1,3 @@
-/***************************************************************************************************
- * Copyright 2013 TeliaSonera. All rights reserved.
- **************************************************************************************************/
 package persia.simulator;
 
 import cz.tieto.princegame.common.gameobject.Equipment;
@@ -12,24 +9,26 @@ public final class TestField implements Field {
     private final int pos;
     private final TestGame game;
 
-    public TestField(int pos, TestGame game) {
+    public TestField(final int pos, final TestGame game) {
         this.pos = pos;
         this.game = game;
     }
 
     public Equipment getEquipment() {
-        return game.getEquipment(pos);
+        final TestEquipment equipment = game.getEquipment(pos);
+        return equipment != null ? equipment.clone() : null;
     }
 
     public Obstacle getObstacle() {
-        return game.getObstacle(pos);
+        final TestObstacle obstacle = game.getObstacle(pos);
+        return obstacle != null ? obstacle.clone() : null;
     }
 
     public boolean isGate() {
         return game.isGate(pos);
     }
 
-    public Field getLookAt(int num) {
+    public Field getLookAt(final int num) {
         return game.getLookAt(num);
     }
 
